@@ -15,6 +15,11 @@ export default class PluginManager
       this._plugins = [];
    }
 
+   /**
+    * Adds a plugin to the manager.
+    *
+    * @param {object}   plugin - A plugin.
+    */
    addPlugin(plugin)
    {
       if (typeof plugin !== 'object') { throw new TypeError('addPlugin error: plugin is not an object'); }

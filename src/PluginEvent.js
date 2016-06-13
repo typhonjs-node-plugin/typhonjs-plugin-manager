@@ -11,6 +11,10 @@ export default class PluginEvent
     */
    constructor(data = {}, copy = true)
    {
+      /**
+       * Stores the data provided to the event.
+       * @type {Object}
+       */
       this.data = copy ? s_COPY(data) : data;
    }
 }
