@@ -1,5 +1,3 @@
-'use strict';
-
 import PluginEvent   from './PluginEvent.js';
 
 /**

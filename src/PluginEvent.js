@@ -12,23 +12,9 @@ export default class PluginEvent
    constructor(data = {}, copy = true)
    {
       /**
-       * Stores the data provided to the event.
-       * @type {Object}
+       * Stores the data provided to the event and potentially copying it via `Object.assign`.
+       * @type {object}
        */
-      this.data = copy ? s_COPY(data) : data;
+      this.data = copy ? Object.assign({}, data) : data;
    }
 }
-
-// Module private ---------------------------------------------------------------------------------------------------
-
-/**
- * Copies an object.
- *
- * @param {object}   obj - Object to copy.
- *
- * @returns {object}
- */
-const s_COPY = (obj) =>
-{
-   return JSON.parse(JSON.stringify(obj));
-};
