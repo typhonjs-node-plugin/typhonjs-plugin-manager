@@ -1,9 +1,8 @@
 {
   "name": "typhonjs-plugin-manager",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Provides a plugin manager that dispatches events to loaded plugins.",
   "homepage": "https://github.com/typhonjs-node-plugin/typhonjs-plugin-manager",
-  "bugs": "https://github.com/typhonjs-node-plugin/typhonjs-plugin-manager/issues",
   "license": "MPL-2.0",
   "author": {
     "name": "Mike Leahy"
@@ -38,5 +37,14 @@
     "typhonjs",
     "plugin",
     "manager"
-  ]
+  ],
+  "files": [
+    "dist",
+    "src",
+    "AUTHORS.md"
+  ],
+  "directories": {},
+  "bugs": {
+    "url": "https://github.com/typhonjs-node-plugin/typhonjs-plugin-manager/issues"
+  }
 }
