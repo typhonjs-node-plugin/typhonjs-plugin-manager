@@ -2,6 +2,7 @@
    "title": "typhonjs-plugin-manager",
    "source": "src",
    "destination": "docs",
+   "access": ["public", "private", "protected"],
    "plugins":
    [
       { "name": "esdoc-plugin-enhanced-navigation" }
@@ -10,6 +11,7 @@
    "test":
    {
       "type": "mocha",
-      "source": "./test/src"
+      "source": "test/src",
+      "includes": [".js$"]
    }
 }
