@@ -43,7 +43,15 @@ export default class PluginEntry
     * Set enabled.
     * @param {boolean} enabled - New enabled state.
     */
-   set enabled(enabled) { this._enabled = enabled; }
+   set enabled(enabled)
+   {
+      /**
+       * The plugin enabled state.
+       * @type {boolean}
+       * @private
+       */
+      this._enabled = enabled;
+   }
 
    /**
     * Instantiates a PluginEntry.
@@ -56,10 +64,6 @@ export default class PluginEntry
     */
    constructor(name, type, instance, eventProxy = void 0, options = void 0)
    {
-      /**
-       * The plugin enabled state.
-       * @type {boolean}
-       */
       this._enabled = true;
 
       /**

@@ -810,6 +810,11 @@ export default class PluginManager
 
       const oldPrepend = this._eventPrepend;
 
+      /**
+       * Stores the prepend string for eventbus registration.
+       * @type {string}
+       * @private
+       */
       this._eventPrepend = eventPrepend;
 
       // Unload and reload any existing plugins from the old eventbus to the target eventbus.
