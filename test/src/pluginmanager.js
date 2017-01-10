@@ -1,4 +1,4 @@
-import Events         from 'backbone-esnext-events';
+// import Events         from 'backbone-esnext-events';
 import { assert }     from 'chai';
 
 import PluginManager  from '../../src/PluginManager.js';
@@ -7,7 +7,7 @@ class PluginTest { test(event) { event.data.result.count++; assert.strictEqual(e
 
 const pluginTest = { test: (event) => { event.data.result.count++; assert.strictEqual(event.pluginName, 'pluginTest'); } };
 
-class PluginTestNoName { test(event) { event.data.result.count++; } }
+// class PluginTestNoName { test(event) { event.data.result.count++; } }
 class PluginTestNoName2 { test2(event) { event.data.result.count++; } }
 
 class PluginTestSync
