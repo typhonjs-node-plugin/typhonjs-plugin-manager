@@ -1,4 +1,14 @@
 {
-  "presets": ["es2015"],
-  "plugins": ["add-module-exports"]
+  "presets": ["latest"],
+  "plugins":
+  [
+    "add-module-exports",
+    "transform-runtime",
+    ["module-resolver", {
+      "root": ["./src"],
+      "alias": {
+        "backbone-esnext-events/src": "backbone-esnext-events/dist"
+      }
+    }]
+  ]
 }

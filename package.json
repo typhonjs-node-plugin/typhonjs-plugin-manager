@@ -20,10 +20,11 @@
     }
   ],
   "dependencies": {
+    "backbone-esnext-events": "<1.0.0"
   },
   "devDependencies": {
     "typhonjs-config-eslint": "^0.4.0",
-    "typhonjs-npm-build-test": "^0.3.0"
+    "typhonjs-npm-build-test": "^0.4.0"
   },
   "scripts": {
     "build": "babel-node ./node_modules/typhonjs-npm-scripts-build-babel/scripts/build.js",

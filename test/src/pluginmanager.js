@@ -1,18 +1,26 @@
-'use strict';
-
-import { assert }          from 'chai';
+import Events         from 'backbone-esnext-events';
+import { assert }     from 'chai';
 
 import PluginManager  from '../../src/PluginManager.js';
 
-class PluginTest { test(event) { event.data.result++; } }
-const pluginTest = { test: (event) => { event.data.result++; } };
+class PluginTest { test(event) { event.data.result.count++; assert.strictEqual(event.pluginName, 'PluginTest'); } }
+
+const pluginTest = { test: (event) => { event.data.result.count++; assert.strictEqual(event.pluginName, 'pluginTest'); } };
+
+class PluginTestNoName { test(event) { event.data.result.count++; } }
+class PluginTestNoName2 { test2(event) { event.data.result.count++; } }
+
+class PluginTestSync
+{
+   constructor() { this.c = 3; }
+   test(a, b) { return a + b + this.c; }
+}
 
 suite('PluginManager:', () =>
 {
-   let pluginManager;
+   let pluginManager, testData;
 
-   setup(() => { pluginManager = new PluginManager(); });
-   teardown(() => { pluginManager = undefined; });
+   beforeEach(() => { pluginManager = new PluginManager(); testData = { result: { count: 0 } }; });
 
    test('PluginManager constructor function is exported', () =>
    {
@@ -26,67 +34,165 @@ suite('PluginManager:', () =>
 
    test('PluginManager throws when invoke is called with empty parameters', () =>
    {
-      assert.throws(() => { pluginManager.invoke(); });
+      assert.throws(() => { pluginManager.invokeSyncEvent(); });
    });
 
-   test('PluginManager has empty null event result', () =>
+   test('PluginManager throws w/ add (no options)', () =>
    {
-      const event = pluginManager.invoke('test');
-
-      assert.isNull(event);
+      assert.throws(() => { pluginManager.add(); });
    });
 
-   test('PluginManager w/ plugin and missing method has empty null event result', () =>
+   test('PluginManager has empty result', () =>
    {
-      pluginManager.addPlugin(new PluginTest());
-
-      const event = pluginManager.invoke('nop');
-
-      assert.isNull(event);
-   });
-
-   test('PluginManager has valid test / class result', () =>
-   {
-      pluginManager.addPlugin(new PluginTest());
-
-      const event = pluginManager.invoke('test', { result: 0 });
+      const event = pluginManager.invokeSyncEvent('test');
 
       assert.isObject(event);
-      assert.strictEqual(event.data.result, 1);
+      assert.lengthOf(Object.keys(event), 2);
+      assert(event.$$plugin_invoke_count === 0);
    });
 
-   test('PluginManager has valid test / object result', () =>
+   test('PluginManager w/ plugin and missing method has empty event result', () =>
    {
-      pluginManager.addPlugin(pluginTest);
+      pluginManager.add({ name: 'PluginTest', instance: new PluginTest() });
 
-      const event = pluginManager.invoke('test', { result: 0 });
+      const event = pluginManager.invokeSyncEvent('nop');
 
       assert.isObject(event);
-      assert.strictEqual(event.data.result, 1);
+      assert.lengthOf(Object.keys(event), 2);
+      assert.strictEqual(event.$$plugin_invoke_count, 0);
    });
 
-   test('PluginManager has invoked both plugins', () =>
+   test('PluginManager has valid test / class result (pass through)', () =>
    {
-      pluginManager.addPlugin(new PluginTest());
-      pluginManager.addPlugin(pluginTest);
+      pluginManager.add({ name: 'PluginTest', instance: new PluginTest() });
 
-      const event = pluginManager.invoke('test', { result: 0 });
+      const event = pluginManager.invokeSyncEvent('test', void 0, testData);
 
       assert.isObject(event);
-      assert.strictEqual(event.data.result, 2);
+      assert.strictEqual(event.result.count, 1);
+      assert.strictEqual(testData.result.count, 1);
+      assert.strictEqual(event.$$plugin_invoke_count, 1);
    });
 
-   test('PluginManager has invoked both plugins with a copy of data', () =>
+   test('PluginManager has valid test / object result (pass through)', () =>
    {
-      pluginManager.addPlugin(new PluginTest());
-      pluginManager.addPlugin(pluginTest);
+      pluginManager.add({ name: 'pluginTest', instance: pluginTest });
 
-      const data = { result: 0 };
-
-      const event = pluginManager.invoke('test', data);
+      const event = pluginManager.invokeSyncEvent('test', void 0, testData);
 
       assert.isObject(event);
-      assert.strictEqual(event.data.result, 2);
-      assert.strictEqual(data.result, 0);
+      assert.strictEqual(event.result.count, 1);
+      assert.strictEqual(testData.result.count, 1);
+   });
+
+   test('PluginManager has invoked both plugins (pass through)', () =>
+   {
+      pluginManager.add({ name: 'PluginTest', instance: new PluginTest() });
+      pluginManager.add({ name: 'pluginTest', instance: pluginTest });
+
+      const event = pluginManager.invokeSyncEvent('test', void 0, testData);
+
+      assert.isObject(event);
+      assert.strictEqual(event.result.count, 2);
+      assert.strictEqual(testData.result.count, 2);
+   });
+
+   test('PluginManager has valid test / class result (copy)', () =>
+   {
+      pluginManager.add({ name: 'PluginTest', instance: new PluginTest() });
+
+      const event = pluginManager.invokeSyncEvent('test', testData);
+
+      assert.isObject(event);
+      assert.strictEqual(event.result.count, 1);
+      assert.strictEqual(testData.result.count, 0);
+      assert.strictEqual(event.$$plugin_invoke_count, 1);
+      assert.strictEqual(event.$$plugin_invoke_names[0], 'PluginTest');
+   });
+
+   test('PluginManager has valid test / object result (copy)', () =>
+   {
+      pluginManager.add({ name: 'pluginTest', instance: pluginTest });
+
+      const event = pluginManager.invokeSyncEvent('test', testData);
+
+      assert.isObject(event);
+      assert.strictEqual(event.result.count, 1);
+      assert.strictEqual(testData.result.count, 0);
+   });
+
+   test('PluginManager has invoked both plugins (copy)', () =>
+   {
+      pluginManager.add({ name: 'PluginTest', instance: new PluginTest() });
+      pluginManager.add({ name: 'pluginTest', instance: pluginTest });
+
+      const event = pluginManager.invokeSyncEvent('test', testData);
+
+      assert.isObject(event);
+      assert.strictEqual(event.result.count, 2);
+      assert.strictEqual(testData.result.count, 0);
+   });
+
+   test('PluginManager has invoked one result (sync)', () =>
+   {
+      pluginManager.add({ name: 'PluginTestSync', instance: new PluginTestSync() });
+
+      const result = pluginManager.invokeSync('PluginTestSync', 'test', 1, 2);
+
+      assert.isNumber(result);
+      assert.strictEqual(result, 6);
+   });
+
+   test('PluginManager has invoked two results (sync)', () =>
+   {
+      pluginManager.add({ name: 'PluginTestSync', instance: new PluginTestSync() });
+      pluginManager.add({ name: 'PluginTestSync2', instance: new PluginTestSync() });
+
+      const result = pluginManager.invokeSync(void 0, 'test', 1, 2);
+
+      assert.isArray(result);
+      assert.strictEqual(result[0], 6);
+      assert.strictEqual(result[1], 6);
+   });
+
+   test('PluginManager get unique method names', () =>
+   {
+      pluginManager.add({ name: 'PluginTestSync', instance: new PluginTestSync() });
+      pluginManager.add({ name: 'PluginTestNoName2', instance: new PluginTestNoName2() });
+
+      const results = pluginManager.getMethodNames();
+
+      assert.isArray(results);
+      assert.lengthOf(results, 2);
+      assert.strictEqual(results[0], 'test');
+      assert.strictEqual(results[1], 'test2');
+   });
+
+   test('PluginManager get plugin names', () =>
+   {
+      pluginManager.add({ name: 'PluginTestSync', instance: new PluginTestSync() });
+      pluginManager.add({ name: 'PluginTestSync2', instance: new PluginTestSync() });
+
+      const results = pluginManager.getPluginNames();
+
+      assert.isArray(results);
+      assert.lengthOf(results, 2);
+      assert.strictEqual(results[0], 'PluginTestSync');
+      assert.strictEqual(results[1], 'PluginTestSync2');
+   });
+
+   test('PluginManager get plugin / method names', () =>
+   {
+      pluginManager.add({ name: 'PluginTestSync', instance: new PluginTestSync() });
+      pluginManager.add({ name: 'PluginTestNoName2', instance: new PluginTestNoName2() });
+
+      const results = pluginManager.getPluginMethodNames();
+
+      assert.isArray(results);
+      assert.lengthOf(results, 2);
+      assert.strictEqual(results[0].plugin, 'PluginTestSync');
+      assert.strictEqual(results[0].method, 'test');
+      assert.strictEqual(results[1].plugin, 'PluginTestNoName2');
+      assert.strictEqual(results[1].method, 'test2');
    });
 });
