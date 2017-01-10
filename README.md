@@ -10,4 +10,111 @@
 [![Coverage](https://img.shields.io/codecov/c/github/typhonjs-node-plugin/typhonjs-plugin-manager.svg)](https://codecov.io/github/typhonjs-node-plugin/typhonjs-plugin-manager)
 [![Dependency Status](https://www.versioneye.com/user/projects/575e79a77757a00041b3ba3f/badge.svg?style=flat)](https://www.versioneye.com/user/projects/575e79a77757a00041b3ba3f)
 
-Provides an essential plugin manager that dispatches events to loaded plugins. More information soon.
+Provides a lightweight plugin manager for Node / NPM with optional `backbone-esnext-events`
+integration for plugins in a safe and protected manner across NPM modules, local files, and preloaded object
+instances. This pattern facilitates message passing between modules versus direct dependencies / method invocation.
+
+It isn't necessary to use an eventbus associated with the plugin manager though invocation then relies on invoking
+methods directly with the plugin manager instance.
+
+When passing in an eventbus from `backbone-esnext-events` the plugin manager will register by default under these
+event categories:
+
+`plugins:add` - invokes [PluginManager#add](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-add)
+
+`plugins:add:all` - invokes [PluginManager#addAll](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-addAll)
+
+`plugins:enable:all:plugins` - invokes [PluginManager#enableAllPlugins](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-enableAllPlugins)
+
+`plugins:enable:plugin` - invokes [PluginManager#enablePlugin](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-enablePlugin)
+
+`plugins:enable:plugins` - invokes [PluginManager#enablePlugins](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-enablePlugins)
+
+`plugins:get:method:names` - invokes [PluginManager#getMethodNames](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getMethodNames)
+
+`plugins:get:options` - invokes [PluginManager#getOptions](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getOptions)
+
+`plugins:get:plugin:method:names` - invokes [PluginManager#getPluginMethodNames](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getPluginMethodNames)
+
+`plugins:get:plugin:names` - invokes [PluginManager#getPluginNames](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getPluginNames)
+
+`plugins:get:plugin:options` - invokes [PluginManager#getPluginOptions](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getPluginOptions)
+
+`plugins:has:method` - invokes [PluginManager#hasMethod](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-hasMethod)
+
+`plugins:has:plugin` - invokes [PluginManager#hasPlugin](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-hasPlugin)
+
+`plugins:has:plugin:method` - invokes [PluginManager#hasPluginMethod](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-hasPluginMethod)
+
+`plugins:invoke:async` - invokes [PluginManager#invokeAsync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invokeAsync)
+
+`plugins:invoke:sync` - invokes [PluginManager#invokeSync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invokeSync)
+
+`plugins:invoke:sync:event` - invokes [PluginManager#invokeSyncEvent](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invokeSyncEvent)
+
+`plugins:remove` - invokes [PluginManager#remove](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-remove)
+
+`plugins:remove:all` - invokes [PluginManager#removeAll](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-removeAll)
+
+Automatically when a plugin is loaded and unloaded respective callbacks `onPluginLoad` and `onPluginUnload` will
+be attempted to be invoked on the plugin. This is an opportunity for the plugin to receive any associated eventbus
+and wire itself into it. It should be noted that a protected proxy around the eventbus is passed to the plugins
+such that when the plugin is removed automatically all events registered on the eventbus are cleaned up without
+a plugin author needing to do this manually in the `onPluginUnload` callback. This solves any dangling event binding
+issues.
+
+If eventbus functionality is enabled it is important especially if using a process / global level eventbus such as
+`backbone-esnext-eventbus` to call [PluginManager#destroy](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-destroy) to clean up all plugin eventbus resources and
+the plugin manager event bindings.
+
+Please see the following NPM modules for eventbus info:
+- [backbone-esnext-events](https://www.npmjs.com/package/backbone-esnext-events)
+- [backbone-esnext-eventbus](https://www.npmjs.com/package/backbone-esnext-eventbus)
+
+Examples follow:
+```
+import Events        from 'backbone-esnext-events';   // Imports the TyphonEvents class for local usage.
+::or alternatively::
+import eventbus      from 'backbone-esnext-eventbus'; // Imports a global / process level eventbus.
+
+import PluginManager from 'typhonjs-plugin-manager';
+
+const pluginManager = new PluginManager({ eventbus });
+
+pluginManager.add({ name: 'an-npm-plugin-enabled-module' });
+pluginManager.add({ name: 'my-local-module', target: './myModule.js' });
+
+// Let's say an-npm-plugin-enabled-module responds to 'cool:event' which returns 'true'.
+// Let's say my-local-module responds to 'hot:event' which returns 'false'.
+// Both of the plugin / modules will have 'onPluginLoaded' invoked with a proxy to the eventbus and any plugin
+// options defined.
+
+// One can then use the eventbus functionality to invoke associated module / plugin methods even retrieving results.
+assert(eventbus.triggerSync('cool:event') === true);
+assert(eventbus.triggerSync('hot:event') === false);
+
+// One can also indirectly invoke any method of the plugin via:
+eventbus.triggerSync('plugins:invoke:sync:event', 'aCoolMethod'); // Any plugin with a method named `aCoolMethod` is invoked.
+eventbus.triggerSync('plugins:invoke:sync:event', 'aCoolMethod', {}, {}, 'an-npm-plugin-enabled-module'); // specific invocation.
+
+// The 3rd parameter defines a pass through object hash and the 4th will make a copy of the hash sending a single
+// event / object hash to the invoked method.
+
+// -----------------------
+
+// Given that `backbone-esnext-eventbus` defines a global / process level eventbus you can import it in an entirely
+// different file or even NPM module and invoke methods of loaded plugins like this:
+
+import eventbus from 'backbone-esnext-eventbus';
+
+eventbus.triggerSync('plugins:invoke', 'aCoolMethod'); // Any plugin with a method named `aCoolMethod` is invoked.
+
+assert(eventbus.triggerSync('cool:event') === true);
+
+eventbus.trigger('plugins:remove', 'an-npm-plugin-enabled-module'); // Removes the plugin and unregisters events.
+
+assert(eventbus.triggerSync('cool:event') === true); // Will now fail!
+
+// In this case though when using the global eventbus be mindful to always call `pluginManager.destroy()` in the main
+// thread of execution scope to remove all plugins and the plugin manager event bindings!
+```
