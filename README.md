@@ -24,21 +24,25 @@ event categories:
 
 `plugins:add:all` - invokes [PluginManager#addAll](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-addAll)
 
-`plugins:enable:all:plugins` - invokes [PluginManager#enableAllPlugins](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-enableAllPlugins)
+`plugins:get:all:plugin:data` - invokes [PluginManager#getAllPluginData](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getAllPluginData)
 
-`plugins:enable:plugin` - invokes [PluginManager#enablePlugin](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-enablePlugin)
-
-`plugins:enable:plugins` - invokes [PluginManager#enablePlugins](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-enablePlugins)
+`plugins:get:extra:event:data` - invokes [PluginManager#getExtraEventData](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getExtraEventData)
 
 `plugins:get:method:names` - invokes [PluginManager#getMethodNames](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getMethodNames)
 
 `plugins:get:options` - invokes [PluginManager#getOptions](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getOptions)
+
+`plugins:get:plugin:data` - invokes [PluginManager#getPluginData](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getPluginData)
+
+`plugins:get:plugin:enabled` - invokes [PluginManager#getPluginEnabled](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getPluginEnabled)
 
 `plugins:get:plugin:method:names` - invokes [PluginManager#getPluginMethodNames](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getPluginMethodNames)
 
 `plugins:get:plugin:names` - invokes [PluginManager#getPluginNames](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getPluginNames)
 
 `plugins:get:plugin:options` - invokes [PluginManager#getPluginOptions](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getPluginOptions)
+
+`plugins:get:plugins:enabled` - invokes [PluginManager#getPluginsEnabled](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getPluginsEnabled)
 
 `plugins:has:method` - invokes [PluginManager#hasMethod](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-hasMethod)
 
@@ -55,6 +59,12 @@ event categories:
 `plugins:remove` - invokes [PluginManager#remove](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-remove)
 
 `plugins:remove:all` - invokes [PluginManager#removeAll](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-removeAll)
+
+`plugins:set:extra:event:data` - invokes [PluginManager#setExtraEventData](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-setExtraEventData)
+
+`plugins:set:plugin:enabled` - invokes [PluginManager#setPluginEnabled](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-setPluginEnabled)
+
+`plugins:set:plugins:enabled` - invokes [PluginManager#setPluginsEnabled](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-setPluginsEnabled)
 
 Automatically when a plugin is loaded and unloaded respective callbacks `onPluginLoad` and `onPluginUnload` will
 be attempted to be invoked on the plugin. This is an opportunity for the plugin to receive any associated eventbus

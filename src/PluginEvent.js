@@ -14,13 +14,20 @@ export default class PluginEvent
     *
     * @param {object} copyProps - Event data to copy.
     * @param {object} passthruProps - Event data to pass through.
+    * @param {object} extraEventData - Extra event data attached to `extra`.
     */
-   constructor(copyProps = {}, passthruProps = {})
+   constructor(copyProps = {}, passthruProps = {}, extraEventData = void 0)
    {
       /**
        * Provides the unified event data assigning any pass through data to the copied data supplied.
        */
       this.data = Object.assign(JSON.parse(JSON.stringify(copyProps)), passthruProps);
+
+      /**
+       * Stores any extra event data added to all PluginEvents.
+       * @type {Object}
+       */
+      this.extra = extraEventData;
 
       /**
        * Unique data available in each plugin invoked.

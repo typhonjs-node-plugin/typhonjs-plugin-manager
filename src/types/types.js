@@ -13,7 +13,28 @@
  */
 
 /**
- * @typedef {object} ManagerOptions
+ * @typedef {object} PluginData
+ *
+ * @property {string}   name - The name of the plugin.
+ *
+ * @property {string}   scopedName - The name of the plugin with the plugin managers event prepend string.
+ *
+ * @property {string}   target - Defines the target NPM module to loaded or defines a local file (full
+ *                               path or relative to current working directory to load.
+ *
+ * @property {string}   targetEscaped - Provides the target, but properly escaped for RegExp usage.
+ *
+ * @property {string}   type - The type of plugin: `instance`, `require-module`, or `require-path`.
+ *
+ * @property {object}   options - Defines an object of options for the plugin.
+ *
+ * @property {string}   managerEventPrepend - The plugin manager event prepend string.
+ */
+
+/**
+ * @typedef {object} PluginManagerOptions
+ *
+ * @property {boolean}   [pluginsEnabled] - If false all plugins are disabled.
  *
  * @property {boolean}   [noEventAdd] - If true this prevents plugins from being added by `plugin:add` and
  *                                      `plugin:add:all` events forcing direct method invocation for addition.
