@@ -1,6 +1,6 @@
 {
   "name": "typhonjs-plugin-manager",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Provides a plugin manager that dispatches events to loaded plugins.",
   "homepage": "https://github.com/typhonjs-node-plugin/typhonjs-plugin-manager",
   "license": "MPL-2.0",
@@ -40,6 +40,7 @@
     "manager"
   ],
   "files": [
+    ".tjsdoc",
     "dist",
     "src",
     "AUTHORS.md"
