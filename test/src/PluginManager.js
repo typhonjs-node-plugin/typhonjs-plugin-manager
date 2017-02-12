@@ -1,4 +1,3 @@
-// import Events         from 'backbone-esnext-events';
 import { assert }     from 'chai';
 
 import PluginManager  from '../../src/PluginManager.js';
@@ -153,6 +152,26 @@ suite('PluginManager:', () =>
       assert.isArray(result);
       assert.strictEqual(result[0], 6);
       assert.strictEqual(result[1], 6);
+   });
+
+   test('PluginConfig is valid', () =>
+   {
+      assert.isTrue(pluginManager.isValidConfig({ name: 'test' }));
+      assert.isTrue(pluginManager.isValidConfig({ name: 'test', target: 'target' }));
+      assert.isTrue(pluginManager.isValidConfig({ name: 'test', target: 'target', options: {} }));
+      assert.isTrue(pluginManager.isValidConfig({ name: 'test', options: {} }));
+   });
+
+   test('PluginConfig is invalid', () =>
+   {
+      assert.isFalse(pluginManager.isValidConfig());
+      assert.isFalse(pluginManager.isValidConfig({}));
+      assert.isFalse(pluginManager.isValidConfig({ name: 123 }));
+      assert.isFalse(pluginManager.isValidConfig({ target: 'target' }));
+      assert.isFalse(pluginManager.isValidConfig({ options: {} }));
+      assert.isFalse(pluginManager.isValidConfig({ name: 'test', target: 123 }));
+      assert.isFalse(pluginManager.isValidConfig({ name: 'test', target: 'target', options: 123 }));
+      assert.isFalse(pluginManager.isValidConfig({ name: 'test', options: 123 }));
    });
 
    test('PluginManager get unique method names', () =>

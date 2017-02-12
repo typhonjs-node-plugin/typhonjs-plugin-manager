@@ -52,6 +52,8 @@ import PluginEvent  from './PluginEvent.js';
  *
  * `plugins:invoke:sync:event` - {@link PluginManager#invokeSyncEvent}
  *
+ * `plugins:is:valid:config` - {@link PluginManager#isValidConfig}
+ *
  * `plugins:remove` - {@link PluginManager#remove}
  *
  * `plugins:remove:all` - {@link PluginManager#removeAll}
@@ -195,7 +197,7 @@ export default class PluginManager
     *
     * @param {PluginConfig}   pluginConfig - Defines the plugin to load.
     *
-    * @returns {PluginData}
+    * @returns {PluginData|undefined}
     */
    add(pluginConfig)
    {
@@ -216,6 +218,18 @@ export default class PluginManager
       if (typeof pluginConfig.options !== 'undefined' && typeof pluginConfig.options !== 'object')
       {
          throw new TypeError(`'pluginConfig.options' is not an 'object' for entry: ${JSON.stringify(pluginConfig)}.`);
+      }
+
+      // If a plugin with the same name already exists post a warning and exit early.
+      if (this._pluginMap.has(pluginConfig.name))
+      {
+         // Please note that a plugin or other logger must be setup on the associated eventbus.
+         if (this._eventbus !== null && typeof this._eventbus !== 'undefined')
+         {
+            this._eventbus.trigger('log:warn', `A plugin already exists with name: ${pluginConfig.name}.`);
+         }
+
+         return;
       }
 
       let instance, target, type;
@@ -354,6 +368,7 @@ export default class PluginManager
          this._eventbus.off(`${this._eventPrepend}:invoke:async`, this.invokeAsync, this);
          this._eventbus.off(`${this._eventPrepend}:invoke:sync`, this.invokeSync, this);
          this._eventbus.off(`${this._eventPrepend}:invoke:sync:event`, this.invokeSyncEvent, this);
+         this._eventbus.off(`${this._eventPrepend}:is:valid:config`, this.isValidConfig, this);
          this._eventbus.off(`${this._eventPrepend}:remove`, this._removeEventbus, this);
          this._eventbus.off(`${this._eventPrepend}:remove:all`, this._removeAllEventbus, this);
          this._eventbus.off(`${this._eventPrepend}:set:extra:event:data`, this.setExtraEventData, this);
@@ -899,6 +914,26 @@ export default class PluginManager
    }
 
    /**
+    * Performs validation of a PluginConfig.
+    *
+    * @param {PluginConfig}   pluginConfig - A PluginConfig to validate.
+    *
+    * @returns {boolean} True if the given PluginConfig is valid.
+    */
+   isValidConfig(pluginConfig)
+   {
+      if (typeof pluginConfig !== 'object') { return false; }
+
+      if (typeof pluginConfig.name !== 'string') { return false; }
+
+      if (typeof pluginConfig.target !== 'undefined' && typeof pluginConfig.target !== 'string') { return false; }
+
+      if (typeof pluginConfig.options !== 'undefined' && typeof pluginConfig.options !== 'object') { return false; }
+
+      return true;
+   }
+
+   /**
     * Sets the eventbus associated with this plugin manager. If any previous eventbus was associated all plugin manager
     * events will be removed then added to the new eventbus. If there are any existing plugins being managed their
     * events will be removed from the old eventbus and then `onPluginLoad` will be called with the new eventbus.
@@ -992,6 +1027,7 @@ export default class PluginManager
          this._eventbus.off(`${oldPrepend}:invoke:async`, this.invokeAsync, this);
          this._eventbus.off(`${oldPrepend}:invoke:sync`, this.invokeSync, this);
          this._eventbus.off(`${oldPrepend}:invoke:sync:event`, this.invokeSyncEvent, this);
+         this._eventbus.off(`${oldPrepend}:is:valid:config`, this.isValidConfig, this);
          this._eventbus.off(`${oldPrepend}:remove`, this._removeEventbus, this);
          this._eventbus.off(`${oldPrepend}:remove:all`, this._removeAllEventbus, this);
          this._eventbus.off(`${oldPrepend}:set:extra:event:data`, this.setExtraEventData, this);
@@ -1026,6 +1062,7 @@ export default class PluginManager
       targetEventbus.on(`${eventPrepend}:invoke:async`, this.invokeAsync, this);
       targetEventbus.on(`${eventPrepend}:invoke:sync`, this.invokeSync, this);
       targetEventbus.on(`${eventPrepend}:invoke:sync:event`, this.invokeSyncEvent, this);
+      targetEventbus.on(`${eventPrepend}:is:valid:config`, this.isValidConfig, this);
       targetEventbus.on(`${eventPrepend}:remove`, this._removeEventbus, this);
       targetEventbus.on(`${eventPrepend}:remove:all`, this._removeAllEventbus, this);
       targetEventbus.on(`${eventPrepend}:set:extra:event:data`, this.setExtraEventData, this);
