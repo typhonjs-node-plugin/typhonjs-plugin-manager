@@ -1,2 +1,2 @@
-## 0.0.4 (2017-10-01)
+## 0.1.0 (2017-11-02)
 Initial feature complete implementation; pending full testsuite for coverage & more docs.
