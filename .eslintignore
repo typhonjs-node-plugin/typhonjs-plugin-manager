@@ -1,7 +1,4 @@
 coverage/
 dist/
 docs/
-jspm_packages/
 node_modules/
-test/fixture/
-config.js
