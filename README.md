@@ -56,6 +56,8 @@ event categories:
 
 `plugins:invoke:sync:event` - invokes [PluginManager#invokeSyncEvent](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invokeSyncEvent)
 
+`plugins:is:valid:config` - invokes [PluginManager#isValidConfig](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-isValidConfig)
+
 `plugins:remove` - invokes [PluginManager#remove](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-remove)
 
 `plugins:remove:all` - invokes [PluginManager#removeAll](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-removeAll)
