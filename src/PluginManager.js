@@ -20,6 +20,8 @@ import PluginEvent  from './PluginEvent.js';
  *
  * `plugins:add:all` - {@link PluginManager#addAll}
  *
+ * `plugins:create:event:proxy` - {@link PluginManager#createEventProxy}
+ *
  * `plugins:get:all:plugin:data` - {@link PluginManager#getAllPluginData}
  *
  * `plugins:get:extra:event:data` - {@link PluginManager#getExtraEventData}
@@ -340,6 +342,16 @@ export default class PluginManager
    }
 
    /**
+    * If an eventbus is assigned to this plugin manager then a new EventProxy wrapping this eventbus is returned.
+    *
+    * @returns {EventProxy}
+    */
+   createEventProxy()
+   {
+      return this._eventbus !== null ? new EventProxy(this._eventbus) : void 0;
+   }
+
+   /**
     * Destroys all managed plugins after unloading them.
     */
    destroy()
@@ -352,6 +364,7 @@ export default class PluginManager
       {
          this._eventbus.off(`${this._eventPrepend}:add`, this._addEventbus, this);
          this._eventbus.off(`${this._eventPrepend}:add:all`, this._addAllEventbus, this);
+         this._eventbus.off(`${this._eventPrepend}:create:event:proxy`, this.createEventProxy, this);
          this._eventbus.off(`${this._eventPrepend}:get:all:plugin:data`, this.getAllPluginData, this);
          this._eventbus.off(`${this._eventPrepend}:get:extra:event:data`, this.getExtraEventData, this);
          this._eventbus.off(`${this._eventPrepend}:get:method:names`, this.getMethodNames, this);
@@ -1011,6 +1024,7 @@ export default class PluginManager
       {
          this._eventbus.off(`${oldPrepend}:add`, this._addEventbus, this);
          this._eventbus.off(`${oldPrepend}:add:all`, this._addAllEventbus, this);
+         this._eventbus.off(`${oldPrepend}:create:event:proxy`, this.createEventProxy, this);
          this._eventbus.off(`${oldPrepend}:get:all:plugin:data`, this.getAllPluginData, this);
          this._eventbus.off(`${oldPrepend}:get:extra:event:data`, this.getExtraEventData, this);
          this._eventbus.off(`${oldPrepend}:get:method:names`, this.getMethodNames, this);
@@ -1046,6 +1060,7 @@ export default class PluginManager
 
       targetEventbus.on(`${eventPrepend}:add`, this._addEventbus, this);
       targetEventbus.on(`${eventPrepend}:add:all`, this._addAllEventbus, this);
+      targetEventbus.on(`${eventPrepend}:create:event:proxy`, this.createEventProxy, this);
       targetEventbus.on(`${eventPrepend}:get:all:plugin:data`, this.getAllPluginData, this);
       targetEventbus.on(`${eventPrepend}:get:extra:event:data`, this.getExtraEventData, this);
       targetEventbus.on(`${eventPrepend}:get:method:names`, this.getMethodNames, this);

@@ -1,6 +1,8 @@
-import { assert }     from 'chai';
+import { assert }    from 'chai';
+import EventProxy    from 'backbone-esnext-events/src/EventProxy';
+import TyphonEvents  from 'backbone-esnext-events/src/TyphonEvents';
 
-import PluginManager  from '../../src/PluginManager.js';
+import PluginManager from '../../src/PluginManager.js';
 
 class PluginTest { test(event) { event.data.result.count++; assert.strictEqual(event.pluginName, 'PluginTest'); } }
 
@@ -39,6 +41,17 @@ suite('PluginManager:', () =>
    test('PluginManager throws w/ add (no options)', () =>
    {
       assert.throws(() => { pluginManager.add(); });
+   });
+
+   test('PluginManager return undefined for createEventProxy when no eventbus is assigned', () =>
+   {
+      assert.isUndefined(pluginManager.createEventProxy());
+   });
+
+   test('PluginManager returns EventProxy for createEventProxy when eventbus is assigned', () =>
+   {
+      pluginManager = new PluginManager({ eventbus: new TyphonEvents() });
+      assert.isTrue(pluginManager.createEventProxy() instanceof EventProxy);
    });
 
    test('PluginManager has empty result', () =>
