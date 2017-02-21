@@ -24,6 +24,8 @@ event categories:
 
 `plugins:add:all` - invokes [PluginManager#addAll](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-addAll)
 
+`plugins:create:event:proxy` - invokes [PluginManager#createEventProxy](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-createEventProxy)
+
 `plugins:get:all:plugin:data` - invokes [PluginManager#getAllPluginData](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getAllPluginData)
 
 `plugins:get:extra:event:data` - invokes [PluginManager#getExtraEventData](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getExtraEventData)
