@@ -332,13 +332,16 @@ export default class PluginManager
     * Provides the eventbus callback which may prevent addition if optional `noEventAdd` is enabled. This disables
     * the ability for plugins to be added via events preventing any external code adding plugins in this manner.
     *
+    * @param {Array<PluginConfig>} pluginConfigs - An array of plugin config object hash entries.
+    *
+    * @returns {Array<PluginData>}
     * @private
     */
-   _addAllEventbus()
+   _addAllEventbus(pluginConfigs)
    {
       if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
 
-      if (!this._options.noEventAdd) { this.addAll(); }
+      if (!this._options.noEventAdd) { return this.addAll(pluginConfigs); }
    }
 
    /**
