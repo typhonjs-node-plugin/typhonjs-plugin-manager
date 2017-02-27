@@ -240,6 +240,9 @@ export default class PluginManager
       if (typeof pluginConfig.instance === 'object')
       {
          instance = pluginConfig.instance;
+
+         target = pluginConfig.name;
+
          type = 'instance';
       }
       else
