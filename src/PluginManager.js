@@ -22,6 +22,8 @@ import PluginEvent  from './PluginEvent.js';
  *
  * `plugins:create:event:proxy` - {@link PluginManager#createEventProxy}
  *
+ * `plugins:destroy:manager` - {@link PluginManager#destroy}
+ *
  * `plugins:get:all:plugin:data` - {@link PluginManager#getAllPluginData}
  *
  * `plugins:get:extra:event:data` - {@link PluginManager#getExtraEventData}
@@ -181,6 +183,7 @@ export default class PluginManager
       {
          pluginsEnabled: true,
          noEventAdd: false,
+         noEventDestroy: false,
          noEventRemoval: false,
          throwNoMethod: false,
          throwNoPlugin: false
@@ -371,6 +374,7 @@ export default class PluginManager
          this._eventbus.off(`${this._eventPrepend}:add`, this._addEventbus, this);
          this._eventbus.off(`${this._eventPrepend}:add:all`, this._addAllEventbus, this);
          this._eventbus.off(`${this._eventPrepend}:create:event:proxy`, this.createEventProxy, this);
+         this._eventbus.off(`${this._eventPrepend}:destroy:manager`, this._destroyEventbus, this);
          this._eventbus.off(`${this._eventPrepend}:get:all:plugin:data`, this.getAllPluginData, this);
          this._eventbus.off(`${this._eventPrepend}:get:extra:event:data`, this.getExtraEventData, this);
          this._eventbus.off(`${this._eventPrepend}:get:method:names`, this.getMethodNames, this);
@@ -397,6 +401,21 @@ export default class PluginManager
 
       this._pluginMap = null;
       this._eventbus = null;
+   }
+
+
+   /**
+    * Provides the eventbus callback which may prevent plugin mananger destruction if optional `noEventDestroy` is
+    * enabled. This disables the ability for the plugin mananger to be destroyed via events preventing any external
+    * code removing plugins in this manner.
+    *
+    * @private
+    */
+   _destroyEventbus()
+   {
+      if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
+
+      if (!this._options.noEventDestroy) { this.destroy(); }
    }
 
    /**
@@ -1031,6 +1050,7 @@ export default class PluginManager
          this._eventbus.off(`${oldPrepend}:add`, this._addEventbus, this);
          this._eventbus.off(`${oldPrepend}:add:all`, this._addAllEventbus, this);
          this._eventbus.off(`${oldPrepend}:create:event:proxy`, this.createEventProxy, this);
+         this._eventbus.off(`${oldPrepend}:destroy:manager`, this._destroyEventbus, this);
          this._eventbus.off(`${oldPrepend}:get:all:plugin:data`, this.getAllPluginData, this);
          this._eventbus.off(`${oldPrepend}:get:extra:event:data`, this.getExtraEventData, this);
          this._eventbus.off(`${oldPrepend}:get:method:names`, this.getMethodNames, this);
@@ -1067,6 +1087,7 @@ export default class PluginManager
       targetEventbus.on(`${eventPrepend}:add`, this._addEventbus, this);
       targetEventbus.on(`${eventPrepend}:add:all`, this._addAllEventbus, this);
       targetEventbus.on(`${eventPrepend}:create:event:proxy`, this.createEventProxy, this);
+      targetEventbus.on(`${eventPrepend}:destroy:manager`, this._destroyEventbus, this);
       targetEventbus.on(`${eventPrepend}:get:all:plugin:data`, this.getAllPluginData, this);
       targetEventbus.on(`${eventPrepend}:get:extra:event:data`, this.getExtraEventData, this);
       targetEventbus.on(`${eventPrepend}:get:method:names`, this.getMethodNames, this);
@@ -1125,6 +1146,7 @@ export default class PluginManager
 
       if (typeof options.pluginsEnabled === 'boolean') { this._options.pluginsEnabled = options.pluginsEnabled; }
       if (typeof options.noEventAdd === 'boolean') { this._options.noEventAdd = options.noEventAdd; }
+      if (typeof options.noEventDestroy === 'boolean') { this._options.noEventDestroy = options.noEventDestroy; }
       if (typeof options.noEventRemoval === 'boolean') { this._options.noEventRemoval = options.noEventRemoval; }
       if (typeof options.throwNoMethod === 'boolean') { this._options.throwNoMethod = options.throwNoMethod; }
       if (typeof options.throwNoPlugin === 'boolean') { this._options.throwNoPlugin = options.throwNoPlugin; }

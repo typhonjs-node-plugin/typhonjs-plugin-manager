@@ -39,6 +39,9 @@
  * @property {boolean}   [noEventAdd] - If true this prevents plugins from being added by `plugin:add` and
  *                                      `plugin:add:all` events forcing direct method invocation for addition.
  *
+ * @property {boolean}   [noEventDestroy] - If true this prevents the plugin mananger from being destroyed by
+ *                                          `plugin:destroy:manager` forcing direct method invocation for destruction.
+ *
  * @property {boolean}   [noEventRemoval] - If true this prevents plugins from being removed by `plugin:remove` and
  *                                          `plugin:remove:all` events forcing direct method invocation for removal.
  *
