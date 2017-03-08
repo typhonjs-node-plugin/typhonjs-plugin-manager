@@ -1,3 +1,6 @@
+## 0.1.5 (2017-03-07)
+added `plugins:destroy:manager` event.
+
 ## 0.1.2 (2017-02-20)
 Added `createEventProxy` returning an EventProxy instance of any assigned eventbus to PluginManager.
 
