@@ -4,9 +4,43 @@ import TyphonEvents  from 'backbone-esnext-events/src/TyphonEvents';
 
 import PluginManager from '../../src/PluginManager.js';
 
-class PluginTest { test(event) { event.data.result.count++; assert.strictEqual(event.pluginName, 'PluginTest'); } }
+class PluginTest
+{
+   test(event)
+   {
+      event.data.result.count++;
+      assert.strictEqual(event.pluginName, 'PluginTest');
+   }
 
-const pluginTest = { test: (event) => { event.data.result.count++; assert.strictEqual(event.pluginName, 'pluginTest'); } };
+   onPluginLoad(ev)
+   {
+      if (ev.eventbus)
+      {
+         ev.eventbus.on('test:trigger', () => {});
+         ev.eventbus.on('test:trigger2', () => {});
+         ev.eventbus.on('test:trigger3', () => {});
+      }
+   }
+}
+
+const pluginTest =
+{
+   test: (event) =>
+   {
+      event.data.result.count++;
+      assert.strictEqual(event.pluginName, 'pluginTest');
+   },
+
+   onPluginLoad: (ev) =>
+   {
+      if (ev.eventbus)
+      {
+         ev.eventbus.on('test:trigger', () => {});
+         ev.eventbus.on('test:trigger4', () => {});
+         ev.eventbus.on('test:trigger5', () => {});
+      }
+   }
+};
 
 // class PluginTestNoName { test(event) { event.data.result.count++; } }
 class PluginTestNoName2 { test2(event) { event.data.result.count++; } }
@@ -21,7 +55,11 @@ suite('PluginManager:', () =>
 {
    let pluginManager, testData;
 
-   beforeEach(() => { pluginManager = new PluginManager(); testData = { result: { count: 0 } }; });
+   beforeEach(() =>
+   {
+      pluginManager = new PluginManager({ eventbus: new TyphonEvents() });
+      testData = { result: { count: 0 } };
+   });
 
    test('PluginManager constructor function is exported', () =>
    {
@@ -45,12 +83,12 @@ suite('PluginManager:', () =>
 
    test('PluginManager return undefined for createEventProxy when no eventbus is assigned', () =>
    {
+      pluginManager = new PluginManager();
       assert.isUndefined(pluginManager.createEventProxy());
    });
 
    test('PluginManager returns EventProxy for createEventProxy when eventbus is assigned', () =>
    {
-      pluginManager = new PluginManager({ eventbus: new TyphonEvents() });
       assert.isTrue(pluginManager.createEventProxy() instanceof EventProxy);
    });
 
@@ -60,7 +98,7 @@ suite('PluginManager:', () =>
 
       assert.isObject(event);
       assert.lengthOf(Object.keys(event), 2);
-      assert(event.$$plugin_invoke_count === 0);
+      assert.strictEqual(event.$$plugin_invoke_count, 0);
    });
 
    test('PluginManager w/ plugin and missing method has empty event result', () =>
@@ -200,7 +238,58 @@ suite('PluginManager:', () =>
       assert.strictEqual(results[1], 'test2');
    });
 
+   test('PluginManager get plugin event names', () =>
+   {
+      pluginManager.add({ name: 'PluginTest', instance: new PluginTest() });
+      pluginManager.add({ name: 'pluginTest', instance: pluginTest });
+
+      let results = pluginManager.getPluginsEventNames();
+
+      assert(JSON.stringify(results), '[{"pluginName":"PluginTest","events":["test:trigger","test:trigger2,"test:trigger3"]},{"pluginName":"pluginTest","events":["test:trigger","test:trigger4","test:trigger5"]}]');
+
+      results = pluginManager.getPluginsEventNames('PluginTest');
+
+      assert(JSON.stringify(results), '[{"pluginName":"PluginTest","events":["test:trigger","test:trigger2","test:trigger3"]}]');
+
+      results = pluginManager.getPluginsEventNames('pluginTest');
+
+      assert(JSON.stringify(results), '[{"pluginName":"pluginTest","events":["test:trigger","test:trigger4","test:trigger5"]}]');
+   });
+
+   test('PluginManager get plugin name from event name', () =>
+   {
+      pluginManager.add({ name: 'PluginTest', instance: new PluginTest() });
+      pluginManager.add({ name: 'pluginTest', instance: pluginTest });
+
+      assert.throws(() => pluginManager.getPluginsByEventName());
+
+      let results = pluginManager.getPluginsByEventName('test:trigger');
+
+      assert(JSON.stringify(results), '["PluginTest","pluginTest"]');
+
+      results = pluginManager.getPluginsByEventName('test:trigger2');
+
+      assert(JSON.stringify(results), '["PluginTest"]');
+
+      results = pluginManager.getPluginsByEventName('test:trigger4');
+
+      assert(JSON.stringify(results), '["pluginTest"]');
+   });
+
    test('PluginManager get plugin names', () =>
+   {
+      pluginManager.add({ name: 'PluginTestSync', instance: new PluginTestSync() });
+      pluginManager.add({ name: 'PluginTestSync2', instance: new PluginTestSync() });
+
+      const results = pluginManager.getPluginNames();
+
+      assert.isArray(results);
+      assert.lengthOf(results, 2);
+      assert.strictEqual(results[0], 'PluginTestSync');
+      assert.strictEqual(results[1], 'PluginTestSync2');
+   });
+
+   test('PluginManager get plugin event names', () =>
    {
       pluginManager.add({ name: 'PluginTestSync', instance: new PluginTestSync() });
       pluginManager.add({ name: 'PluginTestSync2', instance: new PluginTestSync() });

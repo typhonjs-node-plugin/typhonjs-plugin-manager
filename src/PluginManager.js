@@ -36,6 +36,8 @@ import PluginEvent  from './PluginEvent.js';
  *
  * `plugins:get:plugin:enabled` - {@link PluginManager#getPluginEnabled}
  *
+ * `plugins:get:plugin:event:names` - {@link PluginManager#getPluginEventNames}
+ *
  * `plugins:get:plugin:method:names` - {@link PluginManager#getPluginMethodNames}
  *
  * `plugins:get:plugin:names` - {@link PluginManager#getPluginNames}
@@ -43,6 +45,10 @@ import PluginEvent  from './PluginEvent.js';
  * `plugins:get:plugin:options` - {@link PluginManager#getPluginOptions}
  *
  * `plugins:get:plugins:enabled` - {@link PluginManager#getPluginsEnabled}
+ *
+ * `plugins:get:plugins:by:event:name` - {@link PluginManager#getPluginsByEventName}
+ *
+ * `plugins:get:plugins:event:names` - {@link PluginManager#getPluginsEventNames}
  *
  * `plugins:has:method` - {@link PluginManager#hasMethod}
  *
@@ -381,10 +387,13 @@ export default class PluginManager
          this._eventbus.off(`${this._eventPrepend}:get:options`, this.getOptions, this);
          this._eventbus.off(`${this._eventPrepend}:get:plugin:enabled`, this.getPluginEnabled, this);
          this._eventbus.off(`${this._eventPrepend}:get:plugin:data`, this.getPluginData, this);
+         this._eventbus.off(`${this._eventPrepend}:get:plugin:event:names`, this.getPluginEventNames, this);
          this._eventbus.off(`${this._eventPrepend}:get:plugin:method:names`, this.getPluginMethodNames, this);
          this._eventbus.off(`${this._eventPrepend}:get:plugin:names`, this.getPluginNames, this);
          this._eventbus.off(`${this._eventPrepend}:get:plugin:options`, this.getPluginOptions, this);
          this._eventbus.off(`${this._eventPrepend}:get:plugins:enabled`, this.getPluginsEnabled, this);
+         this._eventbus.off(`${this._eventPrepend}:get:plugins:by:event:name`, this.getPluginsByEventName, this);
+         this._eventbus.off(`${this._eventPrepend}:get:plugins:event:names`, this.getPluginsEventNames, this);
          this._eventbus.off(`${this._eventPrepend}:has:method`, this.hasMethod, this);
          this._eventbus.off(`${this._eventPrepend}:has:plugin`, this.hasPlugin, this);
          this._eventbus.off(`${this._eventPrepend}:has:plugin:method`, this.hasPluginMethod, this);
@@ -437,6 +446,24 @@ export default class PluginManager
    }
 
    /**
+    * Returns the event binding names registered on any associated plugin EventProxy.
+    *
+    * @param {string}   pluginName - Plugin name to set state.
+    *
+    * @returns {string[]} - Event binding names registered from the plugin.
+    */
+   getPluginEventNames(pluginName)
+   {
+      if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
+
+      if (typeof pluginName !== 'string') { throw new TypeError(`'pluginName' is not a string.`); }
+
+      const entry = this._pluginMap.get(pluginName);
+
+      return entry instanceof PluginEntry && entry._eventProxy ? entry._eventProxy.getEventNames() : [];
+   }
+
+   /**
     * Returns the enabled state of a list of plugins.
     *
     * @param {Array<string>}  pluginNames - An array / iterable of plugin names.
@@ -452,6 +479,56 @@ export default class PluginManager
       for (const pluginName of pluginNames)
       {
          results.push({ pluginName, enabled: this.getPluginEnabled(pluginName) });
+      }
+
+      return results;
+   }
+
+   /**
+    * Returns the event binding names registered from each plugin.
+    *
+    * @param {string|string[]} [nameOrList] - An array / iterable of plugin names.
+    *
+    * @returns {Array<{pluginName: string, events: string[]}>} A list of objects with plugin name and event binding
+    *                                                          names registered from the plugin.
+    */
+   getPluginsEventNames(nameOrList)
+   {
+      if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
+
+      if (typeof nameOrList === 'undefined') { nameOrList = this._pluginMap.keys(); }
+      if (typeof nameOrList === 'string') { nameOrList = [nameOrList]; }
+
+      const results = [];
+
+      for (const pluginName of nameOrList)
+      {
+         results.push({ pluginName, events: this.getPluginEventNames(pluginName) });
+      }
+
+      return results;
+   }
+
+   /**
+    * Returns the plugin names that registered the given event binding name.
+    *
+    * @param {string} eventName - An event name that plugins may have registered.
+    *
+    * @returns {Array<string[]>} A list of plugin names that has registered the given event name.
+    */
+   getPluginsByEventName(eventName)
+   {
+      if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
+
+      if (typeof eventName !== 'string') { throw new TypeError(`'eventName' is not a 'string'.`); }
+
+      const results = [];
+
+      const pluginEventNames = this.getPluginsEventNames();
+
+      for (const entry of pluginEventNames)
+      {
+         if (entry.events.indexOf(eventName) >= 0) { results.push(entry.pluginName); }
       }
 
       return results;
@@ -751,9 +828,11 @@ export default class PluginManager
     *
     * @returns {*|Array<*>}
     */
-   invokeAsync(nameOrList = this._pluginMap.keys(), methodName, ...args)
+   invokeAsync(nameOrList, methodName, ...args)
    {
       if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
+
+      if (typeof nameOrList === 'undefined') { nameOrList = this._pluginMap.keys(); }
 
       if (typeof nameOrList !== 'string' && !Array.isArray(nameOrList) &&
        typeof nameOrList[Symbol.iterator] !== 'function')
@@ -848,9 +927,11 @@ export default class PluginManager
     *
     * @returns {*|Array<*>}
     */
-   invokeSync(nameOrList = this._pluginMap.keys(), methodName, ...args)
+   invokeSync(nameOrList, methodName, ...args)
    {
       if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
+
+      if (typeof nameOrList === 'undefined') { nameOrList = this._pluginMap.keys(); }
 
       if (typeof nameOrList !== 'string' && !Array.isArray(nameOrList) &&
        typeof nameOrList[Symbol.iterator] !== 'function')
@@ -941,8 +1022,12 @@ export default class PluginManager
     *
     * @returns {PluginEvent|undefined}
     */
-   invokeSyncEvent(methodName, copyProps = {}, passthruProps = {}, nameOrList = this._pluginMap.keys())
+   invokeSyncEvent(methodName, copyProps = {}, passthruProps = {}, nameOrList)
    {
+      if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
+
+      if (typeof nameOrList === 'undefined') { nameOrList = this._pluginMap.keys(); }
+
       // Early out if plugins are not enabled.
       if (!this._options.pluginsEnabled) { return void 0; }
 
@@ -1057,10 +1142,13 @@ export default class PluginManager
          this._eventbus.off(`${oldPrepend}:get:options`, this.getOptions, this);
          this._eventbus.off(`${oldPrepend}:get:plugin:enabled`, this.getPluginEnabled, this);
          this._eventbus.off(`${oldPrepend}:get:plugin:data`, this.getPluginData, this);
+         this._eventbus.off(`${oldPrepend}:get:plugin:event:names`, this.getPluginEventNames, this);
          this._eventbus.off(`${oldPrepend}:get:plugin:method:names`, this.getPluginMethodNames, this);
          this._eventbus.off(`${oldPrepend}:get:plugin:names`, this.getPluginNames, this);
          this._eventbus.off(`${oldPrepend}:get:plugin:options`, this.getPluginOptions, this);
          this._eventbus.off(`${oldPrepend}:get:plugins:enabled`, this.getPluginsEnabled, this);
+         this._eventbus.off(`${oldPrepend}:get:plugins:by:event:name`, this.getPluginsByEventName, this);
+         this._eventbus.off(`${oldPrepend}:get:plugins:event:names`, this.getPluginsEventNames, this);
          this._eventbus.off(`${oldPrepend}:has:method`, this.hasMethod, this);
          this._eventbus.off(`${oldPrepend}:has:plugin`, this.hasPlugin, this);
          this._eventbus.off(`${oldPrepend}:has:plugin:method`, this.hasPluginMethod, this);
@@ -1094,10 +1182,13 @@ export default class PluginManager
       targetEventbus.on(`${eventPrepend}:get:options`, this.getOptions, this);
       targetEventbus.on(`${eventPrepend}:get:plugin:data`, this.getPluginData, this);
       targetEventbus.on(`${eventPrepend}:get:plugin:enabled`, this.getPluginEnabled, this);
+      targetEventbus.on(`${eventPrepend}:get:plugin:event:names`, this.getPluginEventNames, this);
       targetEventbus.on(`${eventPrepend}:get:plugin:method:names`, this.getPluginMethodNames, this);
       targetEventbus.on(`${eventPrepend}:get:plugin:names`, this.getPluginNames, this);
       targetEventbus.on(`${eventPrepend}:get:plugin:options`, this.getPluginOptions, this);
       targetEventbus.on(`${eventPrepend}:get:plugins:enabled`, this.getPluginsEnabled, this);
+      targetEventbus.on(`${eventPrepend}:get:plugins:by:event:name`, this.getPluginsByEventName, this);
+      targetEventbus.on(`${eventPrepend}:get:plugins:event:names`, this.getPluginsEventNames, this);
       targetEventbus.on(`${eventPrepend}:has:method`, this.hasMethod, this);
       targetEventbus.on(`${eventPrepend}:has:plugin`, this.hasPlugin, this);
       targetEventbus.on(`${eventPrepend}:has:plugin:method`, this.hasPluginMethod, this);
@@ -1132,6 +1223,8 @@ export default class PluginManager
     */
    setExtraEventData(extraEventData = void 0)
    {
+      if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
+
       this._extraEventData = extraEventData;
    }
 
@@ -1142,6 +1235,8 @@ export default class PluginManager
     */
    setOptions(options = {})
    {
+      if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
+
       if (typeof options !== 'object') { throw new TypeError(`'options' is not an object.`); }
 
       if (typeof options.pluginsEnabled === 'boolean') { this._options.pluginsEnabled = options.pluginsEnabled; }
