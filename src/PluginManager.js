@@ -295,10 +295,10 @@ export default class PluginManager
          managerEventPrepend: this._eventPrepend
       };
 
-      // Invoke `typhonjs:plugin:manager:added:plugin` allowing external code to react to plugin addition.
+      // Invoke `typhonjs:plugin:manager:plugin:added` allowing external code to react to plugin addition.
       if (this._eventbus)
       {
-         this._eventbus.trigger(`typhonjs:plugin:manager:added:plugin`, pluginData);
+         this._eventbus.trigger(`typhonjs:plugin:manager:plugin:added`, pluginData);
       }
 
       return pluginData;
@@ -1107,11 +1107,11 @@ export default class PluginManager
 
          for (const entry of this._pluginMap.values())
          {
-            // Invoke `typhonjs:plugin:manager:plugin:changed:eventbus` allowing external code to react to plugin
+            // Invoke `typhonjs:plugin:manager:eventbus:changed` allowing external code to react to plugin
             // changing eventbus.
             if (this._eventbus)
             {
-               this._eventbus.trigger(`typhonjs:plugin:manager:plugin:changed:eventbus`,
+               this._eventbus.trigger(`typhonjs:plugin:manager:eventbus:changed`,
                {
                   name: entry.name,
                   target: entry.target,
@@ -1162,8 +1162,8 @@ export default class PluginManager
          this._eventbus.off(`${oldPrepend}:set:plugin:enabled`, this.setPluginEnabled, this);
          this._eventbus.off(`${oldPrepend}:set:plugins:enabled`, this.setPluginsEnabled, this);
 
-         // Invoke `typhonjs:plugin:manager:removed:eventbus` allowing external code to react to eventbus removal.
-         this._eventbus.trigger(`typhonjs:plugin:manager:removed:eventbus`,
+         // Invoke `typhonjs:plugin:manager:eventbus:removed` allowing external code to react to eventbus removal.
+         this._eventbus.trigger(`typhonjs:plugin:manager:eventbus:removed`,
          {
             oldEventbus: this._eventbus,
             oldEventPrepend: oldPrepend,
@@ -1202,8 +1202,8 @@ export default class PluginManager
       targetEventbus.on(`${eventPrepend}:set:plugin:enabled`, this.setPluginEnabled, this);
       targetEventbus.on(`${eventPrepend}:set:plugins:enabled`, this.setPluginsEnabled, this);
 
-      // Invoke `typhonjs:plugin:manager:set:eventbus` allowing external code to react to eventbus set.
-      targetEventbus.trigger(`typhonjs:plugin:manager:set:eventbus`,
+      // Invoke `typhonjs:plugin:manager:eventbus:set` allowing external code to react to eventbus set.
+      targetEventbus.trigger('typhonjs:plugin:manager:eventbus:set',
       {
          oldEventbus: this._eventbus,
          oldEventPrepend: oldPrepend,
@@ -1268,10 +1268,10 @@ export default class PluginManager
       {
          entry.enabled = enabled;
 
-         // Invoke `typhonjs:plugin:manager:enabled:plugin` allowing external code to react to plugin enabled state.
+         // Invoke `typhonjs:plugin:manager:plugin:enabled` allowing external code to react to plugin enabled state.
          if (this._eventbus)
          {
-            this._eventbus.trigger(`typhonjs:plugin:manager:enabled:plugin`,
+            this._eventbus.trigger(`typhonjs:plugin:manager:plugin:enabled`,
             {
                enabled,
                name: entry.name,
@@ -1339,10 +1339,10 @@ export default class PluginManager
 
          this._pluginMap.delete(pluginName);
 
-         // Invoke `typhonjs:plugin:manager:removed:plugin` allowing external code to react to plugin removed.
+         // Invoke `typhonjs:plugin:manager:plugin:removed` allowing external code to react to plugin removed.
          if (this._eventbus)
          {
-            this._eventbus.trigger(`typhonjs:plugin:manager:removed:plugin`, pluginData);
+            this._eventbus.trigger(`typhonjs:plugin:manager:plugin:removed`, pluginData);
          }
 
          return true;
