@@ -1,3 +1,6 @@
+## 0.1.7 (2017-03-10)
+- updated event bindings.
+
 ## 0.1.6 (2017-03-09)
 - added getPluginEventNames / `plugins:get:plugin:event:names` event.
 - added getPluginsByEventName / `plugins:get:plugins:by:event:name` event.
