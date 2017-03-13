@@ -240,7 +240,7 @@ export default class PluginManager
             this._eventbus.trigger('log:warn', `A plugin already exists with name: ${pluginConfig.name}.`);
          }
 
-         return;
+         return void 0;
       }
 
       let instance, target, type;
@@ -319,7 +319,12 @@ export default class PluginManager
 
       const pluginsData = [];
 
-      for (const pluginConfig of pluginConfigs) { pluginsData.push(this.add(pluginConfig)); }
+      for (const pluginConfig of pluginConfigs)
+      {
+         const result = this.add(pluginConfig);
+
+         if (result) { pluginsData.push(result); }
+      }
 
       return pluginsData;
    }
