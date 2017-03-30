@@ -245,8 +245,8 @@ export default class PluginManager
 
       let instance, target, type;
 
-      // Use an existing instance of a plugin
-      if (typeof pluginConfig.instance === 'object')
+      // Use an existing instance of a plugin; a static class is assumed when instance is a function.
+      if (typeof pluginConfig.instance === 'object' || typeof pluginConfig.instance === 'function')
       {
          instance = pluginConfig.instance;
 
