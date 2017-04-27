@@ -113,7 +113,7 @@ import PluginEvent  from './PluginEvent.js';
  * eventbus.triggerSync('plugins:invoke:sync:event', 'aCoolMethod'); // Any plugin with a method named `aCoolMethod` is invoked.
  * eventbus.triggerSync('plugins:invoke:sync:event', 'aCoolMethod', {}, {}, 'an-npm-plugin-enabled-module'); // specific invocation.
  *
- * // The 3rd parameter defines a pass through object hash and the 4th will make a copy of the hash sending a single
+ * // The 3rd parameter will make a copy of the hash and the 4th defines a pass through object hash sending a single
  * // event / object hash to the invoked method.
  *
  * // -----------------------
