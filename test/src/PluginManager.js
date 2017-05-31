@@ -183,11 +183,50 @@ suite('PluginManager:', () =>
       assert.strictEqual(testData.result.count, 0);
    });
 
+   test('PluginManager has invoked with no results', () =>
+   {
+      let invoked = false;
+
+      pluginManager.add({ name: 'PluginTestSync', instance: { test: () => { invoked = true; }} });
+
+      pluginManager.invoke('test', void 0, 'PluginTestSync');
+
+      assert.strictEqual(invoked, true);
+   });
+
+   test('PluginManager has invoked one result (async)', (done) =>
+   {
+      pluginManager.add({ name: 'PluginTestSync', instance: new PluginTestSync() });
+
+      pluginManager.invokeAsync('test', [1, 2], 'PluginTestSync').then((results) =>
+      {
+         assert.isNumber(results);
+         assert.strictEqual(results, 6);
+         done();
+      });
+   });
+
+   test('PluginManager has invoked two results (async)', (done) =>
+   {
+      pluginManager.add({ name: 'PluginTestSync', instance: new PluginTestSync() });
+      pluginManager.add({ name: 'PluginTestSync2', instance: new PluginTestSync() });
+
+      pluginManager.invokeAsync('test', [1, 2]).then((results) =>
+      {
+         assert.isArray(results);
+         assert.isNumber(results[0]);
+         assert.isNumber(results[1]);
+         assert.strictEqual(results[0], 6);
+         assert.strictEqual(results[1], 6);
+         done();
+      });
+   });
+
    test('PluginManager has invoked one result (sync)', () =>
    {
       pluginManager.add({ name: 'PluginTestSync', instance: new PluginTestSync() });
 
-      const result = pluginManager.invokeSync('PluginTestSync', 'test', 1, 2);
+      const result = pluginManager.invokeSync('test', [1, 2], 'PluginTestSync');
 
       assert.isNumber(result);
       assert.strictEqual(result, 6);
@@ -198,7 +237,7 @@ suite('PluginManager:', () =>
       pluginManager.add({ name: 'PluginTestSync', instance: new PluginTestSync() });
       pluginManager.add({ name: 'PluginTestSync2', instance: new PluginTestSync() });
 
-      const result = pluginManager.invokeSync(void 0, 'test', 1, 2);
+      const result = pluginManager.invokeSync('test', [1, 2]);
 
       assert.isArray(result);
       assert.strictEqual(result[0], 6);

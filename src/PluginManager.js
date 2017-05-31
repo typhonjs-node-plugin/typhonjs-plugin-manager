@@ -56,6 +56,8 @@ import PluginEvent  from './PluginEvent.js';
  *
  * `plugins:has:plugin:method` - {@link PluginManager#hasPluginMethod}
  *
+ * `plugins:invoke` - {@link PluginManager#invoke}
+ *
  * `plugins:invoke:async` - {@link PluginManager#invokeAsync}
  *
  * `plugins:invoke:sync` - {@link PluginManager#invokeSync}
@@ -402,6 +404,7 @@ export default class PluginManager
          this._eventbus.off(`${this._eventPrepend}:has:method`, this.hasMethod, this);
          this._eventbus.off(`${this._eventPrepend}:has:plugin`, this.hasPlugin, this);
          this._eventbus.off(`${this._eventPrepend}:has:plugin:method`, this.hasPluginMethod, this);
+         this._eventbus.off(`${this._eventPrepend}:invoke`, this.invoke, this);
          this._eventbus.off(`${this._eventPrepend}:invoke:async`, this.invokeAsync, this);
          this._eventbus.off(`${this._eventPrepend}:invoke:sync`, this.invokeSync, this);
          this._eventbus.off(`${this._eventPrepend}:invoke:sync:event`, this.invokeSyncEvent, this);
@@ -822,20 +825,20 @@ export default class PluginManager
    }
 
    /**
-    * This dispatch method uses ES6 Promises and adds any returned results to an array which is added to a Promise.all
-    * construction which passes back a Promise which waits until all Promises complete. Any target invoked may return a
-    * Promise or any result. This is very useful to use for any asynchronous operations.
+    * This dispatch method simply invokes any plugin targets for the given methodName..
     *
-    * @param {string|Array<string>} nameOrList - An optional plugin name or array / iterable of plugin names to
-    *                                            invoke.
     * @param {string}               methodName - Method name to invoke.
-    * @param {*}                    args - Optional arguments.
     *
-    * @returns {*|Array<*>}
+    * @param {*|Array<*>}           [args] - Optional arguments. An array will be spread as multiple arguments.
+    *
+    * @param {string|Array<string>} [nameOrList] - An optional plugin name or array / iterable of plugin names to
+    *                                              invoke.
     */
-   invokeAsync(nameOrList, methodName, ...args)
+   invoke(methodName, args = void 0, nameOrList = void 0)
    {
       if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
+
+      if (typeof methodName !== 'string') { throw new TypeError(`'methodName' is not a string.`); }
 
       if (typeof nameOrList === 'undefined') { nameOrList = this._pluginMap.keys(); }
 
@@ -845,7 +848,87 @@ export default class PluginManager
          throw new TypeError(`'nameOrList' is not a string, array, or iterator.`);
       }
 
+      // Track if a plugin method is invoked.
+      let hasMethod = false;
+      let hasPlugin = false;
+
+      // Early out if plugins are not enabled.
+      if (!this._options.pluginsEnabled) { return; }
+
+      if (typeof nameOrList === 'string')
+      {
+         const plugin = this._pluginMap.get(nameOrList);
+
+         if (plugin instanceof PluginEntry && plugin.enabled && plugin.instance)
+         {
+            hasPlugin = true;
+
+            if (typeof plugin.instance[methodName] === 'function')
+            {
+               Array.isArray(args) ? plugin.instance[methodName](...args) : plugin.instance[methodName](args);
+
+               hasMethod = true;
+            }
+         }
+      }
+      else
+      {
+         for (const name of nameOrList)
+         {
+            const plugin = this._pluginMap.get(name);
+
+            if (plugin instanceof PluginEntry && plugin.enabled && plugin.instance)
+            {
+               hasPlugin = true;
+
+               if (typeof plugin.instance[methodName] === 'function')
+               {
+                  Array.isArray(args) ? plugin.instance[methodName](...args) : plugin.instance[methodName](args);
+
+                  hasMethod = true;
+               }
+            }
+         }
+      }
+
+      if (this._options.throwNoPlugin && !hasPlugin)
+      {
+         throw new Error(`PluginManager failed to find any target plugins.`);
+      }
+
+      if (this._options.throwNoMethod && !hasMethod)
+      {
+         throw new Error(`PluginManager failed to invoke '${methodName}'.`);
+      }
+   }
+
+   /**
+    * This dispatch method uses ES6 Promises and adds any returned results to an array which is added to a Promise.all
+    * construction which passes back a Promise which waits until all Promises complete. Any target invoked may return a
+    * Promise or any result. This is very useful to use for any asynchronous operations.
+    *
+    * @param {string}               methodName - Method name to invoke.
+    *
+    * @param {*|Array<*>}           [args] - Optional arguments. An array will be spread as multiple arguments.
+    *
+    * @param {string|Array<string>} [nameOrList] - An optional plugin name or array / iterable of plugin names to
+    *                                              invoke.
+    *
+    * @returns {*|Array<*>}
+    */
+   invokeAsync(methodName, args = void 0, nameOrList = void 0)
+   {
+      if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
+
       if (typeof methodName !== 'string') { throw new TypeError(`'methodName' is not a string.`); }
+
+      if (typeof nameOrList === 'undefined') { nameOrList = this._pluginMap.keys(); }
+
+      if (typeof nameOrList !== 'string' && !Array.isArray(nameOrList) &&
+       typeof nameOrList[Symbol.iterator] !== 'function')
+      {
+         throw new TypeError(`'nameOrList' is not a string, array, or iterator.`);
+      }
 
       // Track if a plugin method is invoked.
       let hasMethod = false;
@@ -870,7 +953,8 @@ export default class PluginManager
 
                if (typeof plugin.instance[methodName] === 'function')
                {
-                  result = args.length > 0 ? plugin.instance[methodName](...args) : plugin.instance[methodName]();
+                  result = Array.isArray(args) ? plugin.instance[methodName](...args) :
+                   plugin.instance[methodName](args);
 
                   // If we received a valid result return immediately.
                   if (result !== null || typeof result !== 'undefined') { results.push(result); }
@@ -891,7 +975,8 @@ export default class PluginManager
 
                   if (typeof plugin.instance[methodName] === 'function')
                   {
-                     result = args.length > 0 ? plugin.instance[methodName](...args) : plugin.instance[methodName]();
+                     result = Array.isArray(args) ? plugin.instance[methodName](...args) :
+                      plugin.instance[methodName](args);
 
                      // If we received a valid result return immediately.
                      if (result !== null || typeof result !== 'undefined') { results.push(result); }
@@ -925,16 +1010,20 @@ export default class PluginManager
     * This dispatch method synchronously passes back a single value or an array with all results returned by any
     * invoked targets.
     *
-    * @param {string|Array<string>} nameOrList - An optional plugin name or array / iterable of plugin names to
-    *                                             invoke.
     * @param {string}               methodName - Method name to invoke.
-    * @param {*}                    args - Optional arguments.
+    *
+    * @param {*|Array<*>}           [args] - Optional arguments. An array will be spread as multiple arguments.
+    *
+    * @param {string|Array<string>} [nameOrList] - An optional plugin name or array / iterable of plugin names to
+    *                                              invoke.
     *
     * @returns {*|Array<*>}
     */
-   invokeSync(nameOrList, methodName, ...args)
+   invokeSync(methodName, args = void 0, nameOrList = void 0)
    {
       if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
+
+      if (typeof methodName !== 'string') { throw new TypeError(`'methodName' is not a string.`); }
 
       if (typeof nameOrList === 'undefined') { nameOrList = this._pluginMap.keys(); }
 
@@ -943,8 +1032,6 @@ export default class PluginManager
       {
          throw new TypeError(`'nameOrList' is not a string, array, or iterator.`);
       }
-
-      if (typeof methodName !== 'string') { throw new TypeError(`'methodName' is not a string.`); }
 
       // Track if a plugin method is invoked.
       let hasMethod = false;
@@ -967,7 +1054,7 @@ export default class PluginManager
 
             if (typeof plugin.instance[methodName] === 'function')
             {
-               result = args.length > 0 ? plugin.instance[methodName](...args) : plugin.instance[methodName]();
+               result = Array.isArray(args) ? plugin.instance[methodName](...args) : plugin.instance[methodName](args);
 
                // If we received a valid result return immediately.
                if (result !== null || typeof result !== 'undefined') { results.push(result); }
@@ -988,7 +1075,8 @@ export default class PluginManager
 
                if (typeof plugin.instance[methodName] === 'function')
                {
-                  result = args.length > 0 ? plugin.instance[methodName](...args) : plugin.instance[methodName]();
+                  result = Array.isArray(args) ? plugin.instance[methodName](...args) :
+                   plugin.instance[methodName](args);
 
                   // If we received a valid result return immediately.
                   if (result !== null || typeof result !== 'undefined') { results.push(result); }
@@ -1016,18 +1104,18 @@ export default class PluginManager
    /**
     * This dispatch method synchronously passes to and returns from any invoked targets a PluginEvent.
     *
-    * @param {string}                methodName - Method name to invoke.
+    * @param {string}               methodName - Method name to invoke.
     *
-    * @param {object}                copyProps - plugin event object.
+    * @param {object}               [copyProps={}] - plugin event object.
     *
-    * @param {object}                passthruProps - if true, event has plugin option.
+    * @param {object}               [passthruProps={}] - if true, event has plugin option.
     *
-    * @param {string|Array<string>}  nameOrList - An optional plugin name or array / iterable of plugin names to
-    *                                             invoke.
+    * @param {string|Array<string>} [nameOrList] - An optional plugin name or array / iterable of plugin names to
+    *                                              invoke.
     *
     * @returns {PluginEvent|undefined}
     */
-   invokeSyncEvent(methodName, copyProps = {}, passthruProps = {}, nameOrList)
+   invokeSyncEvent(methodName, copyProps = {}, passthruProps = {}, nameOrList = void 0)
    {
       if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
 
@@ -1157,6 +1245,7 @@ export default class PluginManager
          this._eventbus.off(`${oldPrepend}:has:method`, this.hasMethod, this);
          this._eventbus.off(`${oldPrepend}:has:plugin`, this.hasPlugin, this);
          this._eventbus.off(`${oldPrepend}:has:plugin:method`, this.hasPluginMethod, this);
+         this._eventbus.off(`${oldPrepend}:invoke`, this.invoke, this);
          this._eventbus.off(`${oldPrepend}:invoke:async`, this.invokeAsync, this);
          this._eventbus.off(`${oldPrepend}:invoke:sync`, this.invokeSync, this);
          this._eventbus.off(`${oldPrepend}:invoke:sync:event`, this.invokeSyncEvent, this);
@@ -1197,6 +1286,7 @@ export default class PluginManager
       targetEventbus.on(`${eventPrepend}:has:method`, this.hasMethod, this);
       targetEventbus.on(`${eventPrepend}:has:plugin`, this.hasPlugin, this);
       targetEventbus.on(`${eventPrepend}:has:plugin:method`, this.hasPluginMethod, this);
+      targetEventbus.on(`${eventPrepend}:invoke`, this.invoke, this);
       targetEventbus.on(`${eventPrepend}:invoke:async`, this.invokeAsync, this);
       targetEventbus.on(`${eventPrepend}:invoke:sync`, this.invokeSync, this);
       targetEventbus.on(`${eventPrepend}:invoke:sync:event`, this.invokeSyncEvent, this);
