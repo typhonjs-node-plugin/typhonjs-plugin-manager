@@ -52,6 +52,8 @@ event categories:
 
 `plugins:has:plugin:method` - invokes [PluginManager#hasPluginMethod](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-hasPluginMethod)
 
+`plugins:invoke` - invokes [PluginManager#invoke](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invoke)
+
 `plugins:invoke:async` - invokes [PluginManager#invokeAsync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invokeAsync)
 
 `plugins:invoke:sync` - invokes [PluginManager#invokeSync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invokeSync)
