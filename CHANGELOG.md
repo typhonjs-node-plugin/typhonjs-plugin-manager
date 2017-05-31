@@ -1,3 +1,8 @@
+## 0.1.9 (2017-05-30)
+- added basic plugin invoke method and event binding that does not return results.
+- reorganized method signature for invokeAsync / invokeSync to take a method name and then optional 
+  arguments / plugin names  
+
 ## 0.1.7 (2017-03-10)
 - updated event bindings.
 
