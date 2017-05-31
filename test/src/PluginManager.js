@@ -187,7 +187,7 @@ suite('PluginManager:', () =>
    {
       let invoked = false;
 
-      pluginManager.add({ name: 'PluginTestSync', instance: { test: () => { invoked = true; }} });
+      pluginManager.add({ name: 'PluginTestSync', instance: { test: () => { invoked = true; } } });
 
       pluginManager.invoke('test', void 0, 'PluginTestSync');
 
