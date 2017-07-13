@@ -1,3 +1,11 @@
+## 0.2.0 (2017-07-12)
+- added support for asynchronous usage: please see `addAsync`, `addAllAsync`, `destroyAsync`, 
+`setEventbusAsync`, `removeAsync`, `removeAllAsync` and related event bindings. These methods 
+that invoke plugin lifecycle methods `onPluginLoad` / `onPluginUnload` will asynchronously invoke
+them such that if a plugin returns a Promise or is `async` then execution awaits until completed.
+
+- It is recommended that you use async / await to integrate asynchronous usage.
+
 ## 0.1.9 (2017-05-30)
 - added basic plugin invoke method and event binding that does not return results.
 - reorganized method signature for invokeAsync / invokeSync to take a method name and then optional 
