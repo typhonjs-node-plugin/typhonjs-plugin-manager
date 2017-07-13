@@ -1,4 +1,4 @@
-## 0.2.0 (2017-07-12)
+## 0.1.10 (2017-07-12)
 - added support for asynchronous usage: please see `addAsync`, `addAllAsync`, `destroyAsync`, 
 `setEventbusAsync`, `removeAsync`, `removeAllAsync` and related event bindings. These methods 
 that invoke plugin lifecycle methods `onPluginLoad` / `onPluginUnload` will asynchronously invoke
