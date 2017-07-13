@@ -1,14 +1,14 @@
 {
-  "presets": ["latest"],
+  "presets": ["env", "stage-2"],
   "plugins":
   [
     "add-module-exports",
-    "transform-runtime",
     ["module-resolver", {
       "root": ["./src"],
       "alias": {
         "backbone-esnext-events/src": "backbone-esnext-events/dist"
       }
-    }]
+    }],
+    "transform-runtime"
   ]
 }
