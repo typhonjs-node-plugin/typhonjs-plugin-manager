@@ -36,14 +36,17 @@
  *
  * @property {boolean}   [pluginsEnabled] - If false all plugins are disabled.
  *
- * @property {boolean}   [noEventAdd] - If true this prevents plugins from being added by `plugin:add` and
- *                                      `plugin:add:all` events forcing direct method invocation for addition.
+ * @property {boolean}   [noEventAdd] - If true this prevents plugins from being added by `plugins:add` and
+ *                                      `plugins:add:all` events forcing direct method invocation for addition.
  *
- * @property {boolean}   [noEventDestroy] - If true this prevents the plugin mananger from being destroyed by
- *                                          `plugin:destroy:manager` forcing direct method invocation for destruction.
+ * @property {boolean}   [noEventDestroy] - If true this prevents the plugin manager from being destroyed by
+ *                                          `plugins:destroy:manager` forcing direct method invocation for destruction.
  *
- * @property {boolean}   [noEventRemoval] - If true this prevents plugins from being removed by `plugin:remove` and
- *                                          `plugin:remove:all` events forcing direct method invocation for removal.
+ * @property {boolean}   [noEventOptions] - If true this prevents setting options for the plugin manager by
+ *                                          `plugins:destroy:manager` forcing direct method invocation for destruction.
+ *
+ * @property {boolean}   [noEventRemoval] - If true this prevents plugins from being removed by `plugins:remove` and
+ *                                          `plugins:remove:all` events forcing direct method invocation for removal.
  *
  * @property {boolean}   [throwNoMethod] - If true then when a method fails to be invoked by any plugin an exception
  *                                         will be thrown.
