@@ -22,17 +22,25 @@ event categories:
 
 `plugins:add` - invokes [PluginManager#add](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-add)
 
-`plugins:add:async` - invokes [PluginManager#addAsync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-addAsync)
-
 `plugins:add:all` - invokes [PluginManager#addAll](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-addAll)
 
-`plugins:add:all:async` - invokes [PluginManager#addAllAsync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-addAllAsync)
+`plugins:async:add` - invokes [PluginManager#addAsync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-addAsync)
+
+`plugins:async:add:all` - invokes [PluginManager#addAllAsync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-addAllAsync)
+
+`plugins:async:destroy:manager` - invokes [PluginManager#destroyAsync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-destroyAsync)
+
+`plugins:async:invoke` - invokes [PluginManager#invokeAsync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invokeAsync)
+
+`plugins:async:invoke:event` - invokes [PluginManager#invokeAsyncEvent](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invokeAsyncEvent)
+
+`plugins:async:remove` - invokes [PluginManager#removeAsync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-removeAsync)
+
+`plugins:async:remove:all` - invokes [PluginManager#removeAllAsync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-removeAllAsync)
 
 `plugins:create:event:proxy` - invokes [PluginManager#createEventProxy](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-createEventProxy)
 
 `plugins:destroy:manager` - invokes [PluginManager#destroy](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-destroy)
-
-`plugins:destroy:manager:async` - invokes [PluginManager#destroyAsync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-destroyAsync)
 
 `plugins:get:all:plugin:data` - invokes [PluginManager#getAllPluginData](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-getAllPluginData)
 
@@ -62,29 +70,21 @@ event categories:
 
 `plugins:invoke` - invokes [PluginManager#invoke](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invoke)
 
-`plugins:invoke:async` - invokes [PluginManager#invokeAsync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invokeAsync)
-
-`plugins:invoke:async:event` - invokes [PluginManager#invokeAsyncEvent](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invokeAsyncEvent)
-
-`plugins:invoke:sync` - invokes [PluginManager#invokeSync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invokeSync)
-
-`plugins:invoke:sync:event` - invokes [PluginManager#invokeSyncEvent](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invokeSyncEvent)
-
 `plugins:is:valid:config` - invokes [PluginManager#isValidConfig](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-isValidConfig)
 
 `plugins:remove` - invokes [PluginManager#remove](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-remove)
 
-`plugins:remove:async` - invokes [PluginManager#removeAsync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-removeAsync)
-
 `plugins:remove:all` - invokes [PluginManager#removeAll](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-removeAll)
-
-`plugins:remove:all:async` - invokes [PluginManager#removeAllAsync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-removeAllAsync)
 
 `plugins:set:extra:event:data` - invokes [PluginManager#setExtraEventData](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-setExtraEventData)
 
 `plugins:set:plugin:enabled` - invokes [PluginManager#setPluginEnabled](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-setPluginEnabled)
 
 `plugins:set:plugins:enabled` - invokes [PluginManager#setPluginsEnabled](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-setPluginsEnabled)
+
+`plugins:sync:invoke` - invokes [PluginManager#invokeSync](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invokeSync)
+
+`plugins:sync:invoke:event` - invokes [PluginManager#invokeSyncEvent](https://docs.typhonjs.io/typhonjs-node-plugin/typhonjs-plugin-manager/class/src/PluginManager.js~PluginManager.html#instance-method-invokeSyncEvent)
 
 Automatically when a plugin is loaded and unloaded respective callbacks `onPluginLoad` and `onPluginUnload` will
 be attempted to be invoked on the plugin. This is an opportunity for the plugin to receive any associated eventbus
