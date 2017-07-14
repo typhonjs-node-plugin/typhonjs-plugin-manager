@@ -18,17 +18,25 @@ import PluginEvent  from './PluginEvent.js';
  *
  * `plugins:add` - {@link PluginManager#add}
  *
- * `plugins:add:async` - {@link PluginManager#addAsync}
- *
  * `plugins:add:all` - {@link PluginManager#addAll}
  *
- * `plugins:add:all:async` - {@link PluginManager#addAllAsync}
+ * `plugins:async:add` - {@link PluginManager#addAsync}
+ *
+ * `plugins:async:add:all` - {@link PluginManager#addAllAsync}
+ *
+ * `plugins:async:destroy:manager` - {@link PluginManager#destroyAsync}
+ *
+ * `plugins:async:invoke` - {@link PluginManager#invokeAsync}
+ *
+ * `plugins:async:invoke:event` - {@link PluginManager#invokeAsyncEvent}
+ *
+ * `plugins:async:remove` - {@link PluginManager#removeAsync}
+ *
+ * `plugins:async:remove:all` - {@link PluginManager#removeAllAsync}
  *
  * `plugins:create:event:proxy` - {@link PluginManager#createEventProxy}
  *
  * `plugins:destroy:manager` - {@link PluginManager#destroy}
- *
- * `plugins:destroy:manager:async` - {@link PluginManager#destroyAsync}
  *
  * `plugins:get:all:plugin:data` - {@link PluginManager#getAllPluginData}
  *
@@ -64,29 +72,23 @@ import PluginEvent  from './PluginEvent.js';
  *
  * `plugins:invoke` - {@link PluginManager#invoke}
  *
- * `plugins:invoke:async` - {@link PluginManager#invokeAsync}
- *
- * `plugins:invoke:async:event` - {@link PluginManager#invokeAsyncEvent}
- *
- * `plugins:invoke:sync` - {@link PluginManager#invokeSync}
- *
- * `plugins:invoke:sync:event` - {@link PluginManager#invokeSyncEvent}
- *
  * `plugins:is:valid:config` - {@link PluginManager#isValidConfig}
  *
  * `plugins:remove` - {@link PluginManager#remove}
  *
- * `plugins:remove:async` - {@link PluginManager#removeAsync}
- *
  * `plugins:remove:all` - {@link PluginManager#removeAll}
  *
- * `plugins:remove:all:async` - {@link PluginManager#removeAllAsync}
- *
  * `plugins:set:extra:event:data` - {@link PluginManager#setExtraEventData}
+ *
+ * `plugins:set:options` - {@link PluginManager#setOptions}
  *
  * `plugins:set:plugin:enabled` - {@link PluginManager#setPluginEnabled}
  *
  * `plugins:set:plugins:enabled` - {@link PluginManager#setPluginsEnabled}
+ *
+ * `plugins:sync:invoke` - {@link PluginManager#invokeSync}
+ *
+ * `plugins:sync:invoke:event` - {@link PluginManager#invokeSyncEvent}
  *
  * Automatically when a plugin is loaded and unloaded respective callbacks `onPluginLoad` and `onPluginUnload` will
  * be attempted to be invoked on the plugin. This is an opportunity for the plugin to receive any associated eventbus
@@ -210,6 +212,7 @@ export default class PluginManager
          pluginsEnabled: true,
          noEventAdd: false,
          noEventDestroy: false,
+         noEventOptions: true,
          noEventRemoval: false,
          throwNoMethod: false,
          throwNoPlugin: false
@@ -564,12 +567,16 @@ export default class PluginManager
       if (this._eventbus !== null && typeof this._eventbus !== 'undefined')
       {
          this._eventbus.off(`${this._eventPrepend}:add`, this._addEventbus, this);
-         this._eventbus.off(`${this._eventPrepend}:add:async`, this._addEventbusAsync, this);
          this._eventbus.off(`${this._eventPrepend}:add:all`, this._addAllEventbus, this);
-         this._eventbus.off(`${this._eventPrepend}:add:all:async`, this._addAllEventbusAsync, this);
+         this._eventbus.off(`${this._eventPrepend}:async:add`, this._addEventbusAsync, this);
+         this._eventbus.off(`${this._eventPrepend}:async:add:all`, this._addAllEventbusAsync, this);
+         this._eventbus.off(`${this._eventPrepend}:async:destroy:manager`, this._destroyEventbusAsync, this);
+         this._eventbus.off(`${this._eventPrepend}:async:invoke`, this.invokeAsync, this);
+         this._eventbus.off(`${this._eventPrepend}:async:invoke:event`, this.invokeAsyncEvent, this);
+         this._eventbus.off(`${this._eventPrepend}:async:remove`, this._removeEventbusAsync, this);
+         this._eventbus.off(`${this._eventPrepend}:async:remove:all`, this._removeAllEventbusAsync, this);
          this._eventbus.off(`${this._eventPrepend}:create:event:proxy`, this.createEventProxy, this);
          this._eventbus.off(`${this._eventPrepend}:destroy:manager`, this._destroyEventbus, this);
-         this._eventbus.off(`${this._eventPrepend}:destroy:manager:async`, this._destroyEventbusAsync, this);
          this._eventbus.off(`${this._eventPrepend}:get:all:plugin:data`, this.getAllPluginData, this);
          this._eventbus.off(`${this._eventPrepend}:get:extra:event:data`, this.getExtraEventData, this);
          this._eventbus.off(`${this._eventPrepend}:get:method:names`, this.getMethodNames, this);
@@ -587,18 +594,15 @@ export default class PluginManager
          this._eventbus.off(`${this._eventPrepend}:has:plugin`, this.hasPlugin, this);
          this._eventbus.off(`${this._eventPrepend}:has:plugin:method`, this.hasPluginMethod, this);
          this._eventbus.off(`${this._eventPrepend}:invoke`, this.invoke, this);
-         this._eventbus.off(`${this._eventPrepend}:invoke:async`, this.invokeAsync, this);
-         this._eventbus.off(`${this._eventPrepend}:invoke:async:event`, this.invokeAsyncEvent, this);
-         this._eventbus.off(`${this._eventPrepend}:invoke:sync`, this.invokeSync, this);
-         this._eventbus.off(`${this._eventPrepend}:invoke:sync:event`, this.invokeSyncEvent, this);
          this._eventbus.off(`${this._eventPrepend}:is:valid:config`, this.isValidConfig, this);
          this._eventbus.off(`${this._eventPrepend}:remove`, this._removeEventbus, this);
-         this._eventbus.off(`${this._eventPrepend}:remove:async`, this._removeEventbusAsync, this);
          this._eventbus.off(`${this._eventPrepend}:remove:all`, this._removeAllEventbus, this);
-         this._eventbus.off(`${this._eventPrepend}:remove:all:async`, this._removeAllEventbusAsync, this);
          this._eventbus.off(`${this._eventPrepend}:set:extra:event:data`, this.setExtraEventData, this);
+         this._eventbus.off(`${this._eventPrepend}:set:options`, this._setOptionsEventbus, this);
          this._eventbus.off(`${this._eventPrepend}:set:plugin:enabled`, this.setPluginEnabled, this);
          this._eventbus.off(`${this._eventPrepend}:set:plugins:enabled`, this.setPluginsEnabled, this);
+         this._eventbus.off(`${this._eventPrepend}:sync:invoke`, this.invokeSync, this);
+         this._eventbus.off(`${this._eventPrepend}:sync:invoke:event`, this.invokeSyncEvent, this);
       }
 
       this._pluginMap = null;
@@ -617,12 +621,16 @@ export default class PluginManager
       if (this._eventbus !== null && typeof this._eventbus !== 'undefined')
       {
          this._eventbus.off(`${this._eventPrepend}:add`, this._addEventbus, this);
-         this._eventbus.off(`${this._eventPrepend}:add:async`, this._addEventbusAsync, this);
          this._eventbus.off(`${this._eventPrepend}:add:all`, this._addAllEventbus, this);
-         this._eventbus.off(`${this._eventPrepend}:add:all:async`, this._addAllEventbusAsync, this);
+         this._eventbus.off(`${this._eventPrepend}:async:add`, this._addEventbusAsync, this);
+         this._eventbus.off(`${this._eventPrepend}:async:add:all`, this._addAllEventbusAsync, this);
+         this._eventbus.off(`${this._eventPrepend}:async:destroy:manager`, this._destroyEventbusAsync, this);
+         this._eventbus.off(`${this._eventPrepend}:async:invoke`, this.invokeAsync, this);
+         this._eventbus.off(`${this._eventPrepend}:async:invoke:event`, this.invokeAsyncEvent, this);
+         this._eventbus.off(`${this._eventPrepend}:async:remove`, this._removeEventbusAsync, this);
+         this._eventbus.off(`${this._eventPrepend}:async:remove:all`, this._removeAllEventbusAsync, this);
          this._eventbus.off(`${this._eventPrepend}:create:event:proxy`, this.createEventProxy, this);
          this._eventbus.off(`${this._eventPrepend}:destroy:manager`, this._destroyEventbus, this);
-         this._eventbus.off(`${this._eventPrepend}:destroy:manager:async`, this._destroyEventbusAsync, this);
          this._eventbus.off(`${this._eventPrepend}:get:all:plugin:data`, this.getAllPluginData, this);
          this._eventbus.off(`${this._eventPrepend}:get:extra:event:data`, this.getExtraEventData, this);
          this._eventbus.off(`${this._eventPrepend}:get:method:names`, this.getMethodNames, this);
@@ -640,18 +648,15 @@ export default class PluginManager
          this._eventbus.off(`${this._eventPrepend}:has:plugin`, this.hasPlugin, this);
          this._eventbus.off(`${this._eventPrepend}:has:plugin:method`, this.hasPluginMethod, this);
          this._eventbus.off(`${this._eventPrepend}:invoke`, this.invoke, this);
-         this._eventbus.off(`${this._eventPrepend}:invoke:async`, this.invokeAsync, this);
-         this._eventbus.off(`${this._eventPrepend}:invoke:async:event`, this.invokeAsyncEvent, this);
-         this._eventbus.off(`${this._eventPrepend}:invoke:sync`, this.invokeSync, this);
-         this._eventbus.off(`${this._eventPrepend}:invoke:sync:event`, this.invokeSyncEvent, this);
          this._eventbus.off(`${this._eventPrepend}:is:valid:config`, this.isValidConfig, this);
          this._eventbus.off(`${this._eventPrepend}:remove`, this._removeEventbus, this);
-         this._eventbus.off(`${this._eventPrepend}:remove:async`, this._removeEventbusAsync, this);
          this._eventbus.off(`${this._eventPrepend}:remove:all`, this._removeAllEventbus, this);
-         this._eventbus.off(`${this._eventPrepend}:remove:all:async`, this._removeAllEventbusAsync, this);
          this._eventbus.off(`${this._eventPrepend}:set:extra:event:data`, this.setExtraEventData, this);
+         this._eventbus.off(`${this._eventPrepend}:set:options`, this._setOptionsEventbus, this);
          this._eventbus.off(`${this._eventPrepend}:set:plugin:enabled`, this.setPluginEnabled, this);
          this._eventbus.off(`${this._eventPrepend}:set:plugins:enabled`, this.setPluginsEnabled, this);
+         this._eventbus.off(`${this._eventPrepend}:sync:invoke`, this.invokeSync, this);
+         this._eventbus.off(`${this._eventPrepend}:sync:invoke:event`, this.invokeSyncEvent, this);
       }
 
       this._pluginMap = null;
@@ -659,8 +664,8 @@ export default class PluginManager
    }
 
    /**
-    * Provides the eventbus callback which may prevent plugin mananger destruction if optional `noEventDestroy` is
-    * enabled. This disables the ability for the plugin mananger to be destroyed via events preventing any external
+    * Provides the eventbus callback which may prevent plugin manager destruction if optional `noEventDestroy` is
+    * enabled. This disables the ability for the plugin manager to be destroyed via events preventing any external
     * code removing plugins in this manner.
     *
     * @private
@@ -673,8 +678,8 @@ export default class PluginManager
    }
 
    /**
-    * Provides the eventbus callback which may prevent plugin mananger destruction if optional `noEventDestroy` is
-    * enabled. This disables the ability for the plugin mananger to be destroyed via events preventing any external
+    * Provides the eventbus callback which may prevent plugin manager destruction if optional `noEventDestroy` is
+    * enabled. This disables the ability for the plugin manager to be destroyed via events preventing any external
     * code removing plugins in this manner.
     *
     * @private
@@ -1505,12 +1510,16 @@ export default class PluginManager
       if (this._eventbus !== null)
       {
          this._eventbus.off(`${oldPrepend}:add`, this._addEventbus, this);
-         this._eventbus.off(`${oldPrepend}:add:async`, this._addEventbusAsync, this);
          this._eventbus.off(`${oldPrepend}:add:all`, this._addAllEventbus, this);
-         this._eventbus.off(`${oldPrepend}:add:all:async`, this._addAllEventbusAsync, this);
+         this._eventbus.off(`${oldPrepend}:async:add`, this._addEventbusAsync, this);
+         this._eventbus.off(`${oldPrepend}:async:add:all`, this._addAllEventbusAsync, this);
+         this._eventbus.off(`${oldPrepend}:async:destroy:manager`, this._destroyEventbusAsync, this);
+         this._eventbus.off(`${oldPrepend}:async:invoke`, this.invokeAsync, this);
+         this._eventbus.off(`${oldPrepend}:async:invoke:event`, this.invokeAsyncEvent, this);
+         this._eventbus.off(`${oldPrepend}:async:remove`, this._removeEventbusAsync, this);
+         this._eventbus.off(`${oldPrepend}:async:remove:all`, this._removeAllEventbusAsync, this);
          this._eventbus.off(`${oldPrepend}:create:event:proxy`, this.createEventProxy, this);
          this._eventbus.off(`${oldPrepend}:destroy:manager`, this._destroyEventbus, this);
-         this._eventbus.off(`${oldPrepend}:destroy:manager:async`, this._destroyEventbusAsync, this);
          this._eventbus.off(`${oldPrepend}:get:all:plugin:data`, this.getAllPluginData, this);
          this._eventbus.off(`${oldPrepend}:get:extra:event:data`, this.getExtraEventData, this);
          this._eventbus.off(`${oldPrepend}:get:method:names`, this.getMethodNames, this);
@@ -1528,18 +1537,15 @@ export default class PluginManager
          this._eventbus.off(`${oldPrepend}:has:plugin`, this.hasPlugin, this);
          this._eventbus.off(`${oldPrepend}:has:plugin:method`, this.hasPluginMethod, this);
          this._eventbus.off(`${oldPrepend}:invoke`, this.invoke, this);
-         this._eventbus.off(`${oldPrepend}:invoke:async`, this.invokeAsync, this);
-         this._eventbus.off(`${oldPrepend}:invoke:async:event`, this.invokeAsyncEvent, this);
-         this._eventbus.off(`${oldPrepend}:invoke:sync`, this.invokeSync, this);
-         this._eventbus.off(`${oldPrepend}:invoke:sync:event`, this.invokeSyncEvent, this);
          this._eventbus.off(`${oldPrepend}:is:valid:config`, this.isValidConfig, this);
          this._eventbus.off(`${oldPrepend}:remove`, this._removeEventbus, this);
-         this._eventbus.off(`${oldPrepend}:remove:async`, this._removeEventbusAsync, this);
          this._eventbus.off(`${oldPrepend}:remove:all`, this._removeAllEventbus, this);
-         this._eventbus.off(`${oldPrepend}:remove:all:async`, this._removeAllEventbusAsync, this);
          this._eventbus.off(`${oldPrepend}:set:extra:event:data`, this.setExtraEventData, this);
+         this._eventbus.off(`${oldPrepend}:set:options`, this._setOptionsEventbus, this);
          this._eventbus.off(`${oldPrepend}:set:plugin:enabled`, this.setPluginEnabled, this);
          this._eventbus.off(`${oldPrepend}:set:plugins:enabled`, this.setPluginsEnabled, this);
+         this._eventbus.off(`${oldPrepend}:sync:invoke`, this.invokeSync, this);
+         this._eventbus.off(`${oldPrepend}:sync:invoke:event`, this.invokeSyncEvent, this);
 
          // Invoke `typhonjs:plugin:manager:eventbus:removed` allowing external code to react to eventbus removal.
          this._eventbus.trigger(`typhonjs:plugin:manager:eventbus:removed`,
@@ -1552,12 +1558,16 @@ export default class PluginManager
       }
 
       targetEventbus.on(`${eventPrepend}:add`, this._addEventbus, this);
-      targetEventbus.on(`${eventPrepend}:add:async`, this._addEventbusAsync, this);
       targetEventbus.on(`${eventPrepend}:add:all`, this._addAllEventbus, this);
-      targetEventbus.on(`${eventPrepend}:add:all:async`, this._addAllEventbusAsync, this);
+      targetEventbus.on(`${eventPrepend}:async:add`, this._addEventbusAsync, this);
+      targetEventbus.on(`${eventPrepend}:async:add:all`, this._addAllEventbusAsync, this);
+      targetEventbus.on(`${eventPrepend}:async:destroy:manager`, this._destroyEventbusAsync, this);
+      targetEventbus.on(`${eventPrepend}:async:invoke`, this.invokeAsync, this);
+      targetEventbus.on(`${eventPrepend}:async:invoke:event`, this.invokeAsyncEvent, this);
+      targetEventbus.on(`${eventPrepend}:async:remove`, this._removeEventbusAsync, this);
+      targetEventbus.on(`${eventPrepend}:async:remove:all`, this._removeAllEventbusAsync, this);
       targetEventbus.on(`${eventPrepend}:create:event:proxy`, this.createEventProxy, this);
       targetEventbus.on(`${eventPrepend}:destroy:manager`, this._destroyEventbus, this);
-      targetEventbus.on(`${eventPrepend}:destroy:manager:async`, this._destroyEventbusAsync, this);
       targetEventbus.on(`${eventPrepend}:get:all:plugin:data`, this.getAllPluginData, this);
       targetEventbus.on(`${eventPrepend}:get:extra:event:data`, this.getExtraEventData, this);
       targetEventbus.on(`${eventPrepend}:get:method:names`, this.getMethodNames, this);
@@ -1575,18 +1585,15 @@ export default class PluginManager
       targetEventbus.on(`${eventPrepend}:has:plugin`, this.hasPlugin, this);
       targetEventbus.on(`${eventPrepend}:has:plugin:method`, this.hasPluginMethod, this);
       targetEventbus.on(`${eventPrepend}:invoke`, this.invoke, this);
-      targetEventbus.on(`${eventPrepend}:invoke:async`, this.invokeAsync, this);
-      targetEventbus.on(`${eventPrepend}:invoke:async:event`, this.invokeAsyncEvent, this);
-      targetEventbus.on(`${eventPrepend}:invoke:sync`, this.invokeSync, this);
-      targetEventbus.on(`${eventPrepend}:invoke:sync:event`, this.invokeSyncEvent, this);
       targetEventbus.on(`${eventPrepend}:is:valid:config`, this.isValidConfig, this);
       targetEventbus.on(`${eventPrepend}:remove`, this._removeEventbus, this);
-      targetEventbus.on(`${eventPrepend}:remove:async`, this._removeEventbusAsync, this);
       targetEventbus.on(`${eventPrepend}:remove:all`, this._removeAllEventbus, this);
-      targetEventbus.on(`${eventPrepend}:remove:all:async`, this._removeAllEventbusAsync, this);
       targetEventbus.on(`${eventPrepend}:set:extra:event:data`, this.setExtraEventData, this);
+      targetEventbus.on(`${eventPrepend}:set:options`, this._setOptionsEventbus, this);
       targetEventbus.on(`${eventPrepend}:set:plugin:enabled`, this.setPluginEnabled, this);
       targetEventbus.on(`${eventPrepend}:set:plugins:enabled`, this.setPluginsEnabled, this);
+      targetEventbus.on(`${eventPrepend}:sync:invoke`, this.invokeSync, this);
+      targetEventbus.on(`${eventPrepend}:sync:invoke:event`, this.invokeSyncEvent, this);
 
       // Invoke `typhonjs:plugin:manager:eventbus:set` allowing external code to react to eventbus set.
       targetEventbus.trigger('typhonjs:plugin:manager:eventbus:set',
@@ -1679,12 +1686,16 @@ export default class PluginManager
       if (this._eventbus !== null)
       {
          this._eventbus.off(`${oldPrepend}:add`, this._addEventbus, this);
-         this._eventbus.off(`${oldPrepend}:add:async`, this._addEventbusAsync, this);
          this._eventbus.off(`${oldPrepend}:add:all`, this._addAllEventbus, this);
-         this._eventbus.off(`${oldPrepend}:add:all:async`, this._addAllEventbusAsync, this);
+         this._eventbus.off(`${oldPrepend}:async:add`, this._addEventbusAsync, this);
+         this._eventbus.off(`${oldPrepend}:async:add:all`, this._addAllEventbusAsync, this);
+         this._eventbus.off(`${oldPrepend}:async:destroy:manager`, this._destroyEventbusAsync, this);
+         this._eventbus.off(`${oldPrepend}:async:invoke`, this.invokeAsync, this);
+         this._eventbus.off(`${oldPrepend}:async:invoke:event`, this.invokeAsyncEvent, this);
+         this._eventbus.off(`${oldPrepend}:async:remove`, this._removeEventbusAsync, this);
+         this._eventbus.off(`${oldPrepend}:async:remove:all`, this._removeAllEventbusAsync, this);
          this._eventbus.off(`${oldPrepend}:create:event:proxy`, this.createEventProxy, this);
          this._eventbus.off(`${oldPrepend}:destroy:manager`, this._destroyEventbus, this);
-         this._eventbus.off(`${oldPrepend}:destroy:manager:async`, this._destroyEventbusAsync, this);
          this._eventbus.off(`${oldPrepend}:get:all:plugin:data`, this.getAllPluginData, this);
          this._eventbus.off(`${oldPrepend}:get:extra:event:data`, this.getExtraEventData, this);
          this._eventbus.off(`${oldPrepend}:get:method:names`, this.getMethodNames, this);
@@ -1702,18 +1713,15 @@ export default class PluginManager
          this._eventbus.off(`${oldPrepend}:has:plugin`, this.hasPlugin, this);
          this._eventbus.off(`${oldPrepend}:has:plugin:method`, this.hasPluginMethod, this);
          this._eventbus.off(`${oldPrepend}:invoke`, this.invoke, this);
-         this._eventbus.off(`${oldPrepend}:invoke:async`, this.invokeAsync, this);
-         this._eventbus.off(`${oldPrepend}:invoke:async:event`, this.invokeAsyncEvent, this);
-         this._eventbus.off(`${oldPrepend}:invoke:sync`, this.invokeSync, this);
-         this._eventbus.off(`${oldPrepend}:invoke:sync:event`, this.invokeSyncEvent, this);
          this._eventbus.off(`${oldPrepend}:is:valid:config`, this.isValidConfig, this);
          this._eventbus.off(`${oldPrepend}:remove`, this._removeEventbus, this);
-         this._eventbus.off(`${oldPrepend}:remove:async`, this._removeEventbusAsync, this);
          this._eventbus.off(`${oldPrepend}:remove:all`, this._removeAllEventbus, this);
-         this._eventbus.off(`${oldPrepend}:remove:all:async`, this._removeAllEventbusAsync, this);
          this._eventbus.off(`${oldPrepend}:set:extra:event:data`, this.setExtraEventData, this);
+         this._eventbus.off(`${oldPrepend}:set:options`, this._setOptionsEventbus, this);
          this._eventbus.off(`${oldPrepend}:set:plugin:enabled`, this.setPluginEnabled, this);
          this._eventbus.off(`${oldPrepend}:set:plugins:enabled`, this.setPluginsEnabled, this);
+         this._eventbus.off(`${oldPrepend}:sync:invoke`, this.invokeSync, this);
+         this._eventbus.off(`${oldPrepend}:sync:invoke:event`, this.invokeSyncEvent, this);
 
          // Invoke `typhonjs:plugin:manager:eventbus:removed` allowing external code to react to eventbus removal.
          this._eventbus.trigger(`typhonjs:plugin:manager:eventbus:removed`,
@@ -1726,12 +1734,16 @@ export default class PluginManager
       }
 
       targetEventbus.on(`${eventPrepend}:add`, this._addEventbus, this);
-      targetEventbus.on(`${eventPrepend}:add:async`, this._addEventbusAsync, this);
       targetEventbus.on(`${eventPrepend}:add:all`, this._addAllEventbus, this);
-      targetEventbus.on(`${eventPrepend}:add:all:async`, this._addAllEventbusAsync, this);
+      targetEventbus.on(`${eventPrepend}:async:add`, this._addEventbusAsync, this);
+      targetEventbus.on(`${eventPrepend}:async:add:all`, this._addAllEventbusAsync, this);
+      targetEventbus.on(`${eventPrepend}:async:destroy:manager`, this._destroyEventbusAsync, this);
+      targetEventbus.on(`${eventPrepend}:async:invoke`, this.invokeAsync, this);
+      targetEventbus.on(`${eventPrepend}:async:invoke:event`, this.invokeAsyncEvent, this);
+      targetEventbus.on(`${eventPrepend}:async:remove`, this._removeEventbusAsync, this);
+      targetEventbus.on(`${eventPrepend}:async:remove:all`, this._removeAllEventbusAsync, this);
       targetEventbus.on(`${eventPrepend}:create:event:proxy`, this.createEventProxy, this);
       targetEventbus.on(`${eventPrepend}:destroy:manager`, this._destroyEventbus, this);
-      targetEventbus.on(`${eventPrepend}:destroy:manager:async`, this._destroyEventbusAsync, this);
       targetEventbus.on(`${eventPrepend}:get:all:plugin:data`, this.getAllPluginData, this);
       targetEventbus.on(`${eventPrepend}:get:extra:event:data`, this.getExtraEventData, this);
       targetEventbus.on(`${eventPrepend}:get:method:names`, this.getMethodNames, this);
@@ -1749,18 +1761,15 @@ export default class PluginManager
       targetEventbus.on(`${eventPrepend}:has:plugin`, this.hasPlugin, this);
       targetEventbus.on(`${eventPrepend}:has:plugin:method`, this.hasPluginMethod, this);
       targetEventbus.on(`${eventPrepend}:invoke`, this.invoke, this);
-      targetEventbus.on(`${eventPrepend}:invoke:async`, this.invokeAsync, this);
-      targetEventbus.on(`${eventPrepend}:invoke:async:event`, this.invokeAsyncEvent, this);
-      targetEventbus.on(`${eventPrepend}:invoke:sync`, this.invokeSync, this);
-      targetEventbus.on(`${eventPrepend}:invoke:sync:event`, this.invokeSyncEvent, this);
       targetEventbus.on(`${eventPrepend}:is:valid:config`, this.isValidConfig, this);
       targetEventbus.on(`${eventPrepend}:remove`, this._removeEventbus, this);
-      targetEventbus.on(`${eventPrepend}:remove:async`, this._removeEventbusAsync, this);
       targetEventbus.on(`${eventPrepend}:remove:all`, this._removeAllEventbus, this);
-      targetEventbus.on(`${eventPrepend}:remove:all:async`, this._removeAllEventbusAsync, this);
       targetEventbus.on(`${eventPrepend}:set:extra:event:data`, this.setExtraEventData, this);
+      targetEventbus.on(`${eventPrepend}:set:options`, this._setOptionsEventbus, this);
       targetEventbus.on(`${eventPrepend}:set:plugin:enabled`, this.setPluginEnabled, this);
       targetEventbus.on(`${eventPrepend}:set:plugins:enabled`, this.setPluginsEnabled, this);
+      targetEventbus.on(`${eventPrepend}:sync:invoke`, this.invokeSync, this);
+      targetEventbus.on(`${eventPrepend}:sync:invoke:event`, this.invokeSyncEvent, this);
 
       // Invoke `typhonjs:plugin:manager:eventbus:set` allowing external code to react to eventbus set.
       targetEventbus.trigger('typhonjs:plugin:manager:eventbus:set',
@@ -1802,9 +1811,26 @@ export default class PluginManager
       if (typeof options.pluginsEnabled === 'boolean') { this._options.pluginsEnabled = options.pluginsEnabled; }
       if (typeof options.noEventAdd === 'boolean') { this._options.noEventAdd = options.noEventAdd; }
       if (typeof options.noEventDestroy === 'boolean') { this._options.noEventDestroy = options.noEventDestroy; }
+      if (typeof options.noEventOptions === 'boolean') { this._options.noEventOptions = options.noEventOptions; }
       if (typeof options.noEventRemoval === 'boolean') { this._options.noEventRemoval = options.noEventRemoval; }
       if (typeof options.throwNoMethod === 'boolean') { this._options.throwNoMethod = options.throwNoMethod; }
       if (typeof options.throwNoPlugin === 'boolean') { this._options.throwNoPlugin = options.throwNoPlugin; }
+   }
+
+   /**
+    * Provides the eventbus callback which may prevent plugin manager options being set if optional `noEventOptions` is
+    * enabled. This disables the ability for the plugin manager options to be set via events preventing any external
+    * code modifying options.
+    *
+    * @param {PluginManagerOptions} options - Defines optional parameters to set.
+    *
+    * @private
+    */
+   _setOptionsEventbus(options = {})
+   {
+      if (this._pluginMap === null) { throw new ReferenceError('This PluginManager instance has been destroyed.'); }
+
+      if (!this._options.noEventOptions) { this.setOptions(options); }
    }
 
    /**
