@@ -1,3 +1,6 @@
+## 0.1.11 (2017-07-14)
+- Breaking change (minor impact): updated event bindings for async / sync methods
+
 ## 0.1.10 (2017-07-12)
 - added support for asynchronous usage: please see `addAsync`, `addAllAsync`, `destroyAsync`, 
 `setEventbusAsync`, `removeAsync`, `removeAllAsync` and related event bindings. These methods 
