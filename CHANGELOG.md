@@ -1,3 +1,9 @@
+## 0.2.0 (2017-08-25)
+- Fine tuned internal plugin entry data.
+- Added optional module data to be associated with plugin data when added.
+- Added deep freeze of plugin data / typhonjs-object-util.
+- Breaking change (minor impact): Updated data passed to global event bindings when plugins are added, removed, enabled.
+
 ## 0.1.11 (2017-07-14)
 - Breaking change (minor impact): updated event bindings for async / sync methods
 
