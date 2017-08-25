@@ -385,8 +385,8 @@ suite('PluginManager:', () =>
 
    test('invokeAsyncEvent - PluginManager has invoked both plugins (copy)', async () =>
    {
-      await pluginManager.add({ name: 'PluginTestAsync', instance: new PluginTestAsync() });
-      await pluginManager.add({ name: 'PluginTestAsync2', instance: new PluginTestAsync() });
+      await pluginManager.addAsync({ name: 'PluginTestAsync', instance: new PluginTestAsync() });
+      await pluginManager.addAsync({ name: 'PluginTestAsync2', instance: new PluginTestAsync() });
 
       const event = await pluginManager.invokeAsyncEvent('test2', testData);
 
@@ -515,6 +515,32 @@ suite('PluginManager:', () =>
       assert.lengthOf(results, 2);
       assert.strictEqual(results[0], 'test');
       assert.strictEqual(results[1], 'test2');
+   });
+
+   test('PluginManager get plugin data', () =>
+   {
+      pluginManager.add({ name: 'PluginTestSync', instance: new PluginTestSync() }, { name: 'modulename' });
+
+      const results = pluginManager.getPluginData('PluginTestSync');
+
+      assert.isObject(results);
+
+      assert(JSON.stringify(results), '{"manager":{"eventPrepend":"plugins"},"module":{"name":"modulename"},"plugin":{"name":"PluginTestSync","scopedName":"plugins:PluginTestSync","target":"PluginTestSync","targetEscaped":"PluginTestSync","type":"instance","options":{}}}');
+   });
+
+   test('PluginManager get all plugin data', () =>
+   {
+      pluginManager.addAll(
+      [
+         { name: 'PluginTestSync', instance: new PluginTestSync() },
+         { name: 'PluginTestNoName2', instance: new PluginTestNoName2() }
+      ], { name: 'modulename' });
+
+      const results = pluginManager.getAllPluginData();
+
+      assert.isArray(results);
+
+      assert(JSON.stringify(results), '[{"manager":{"eventPrepend":"plugins"},"module":{"name":"modulename"},"plugin":{"name":"PluginTestSync","scopedName":"plugins:PluginTestSync","target":"PluginTestSync","targetEscaped":"PluginTestSync","type":"instance","options":{}}},{"manager":{"eventPrepend":"plugins"},"module":{"name":"modulename"},"plugin":{"name":"PluginTestNoName2","scopedName":"plugins:PluginTestNoName2","target":"PluginTestNoName2","targetEscaped":"PluginTestNoName2","type":"instance","options":{}}}]');
    });
 
    test('PluginManager get plugin event names', () =>
